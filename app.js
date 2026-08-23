@@ -1412,16 +1412,19 @@ function drawDistancePolyline(school) {
   });
 }
 
-function filterDistance(distType, btnElement) {
+function handleDistanceSelect() {
+  const select = document.getElementById('distanceSelect');
+  if (!select) return;
+  filterDistance(select.value);
+}
+
+function filterDistance(distType) {
   currentDistanceFilter = distType;
 
-  // Update button active state
-  document.querySelectorAll('.filter-btn[data-dist]').forEach(btn => btn.classList.remove('active'));
-  if (btnElement) {
-    btnElement.classList.add('active');
-  } else {
-    const matchingBtn = document.querySelector(`.filter-btn[data-dist="${distType}"]`);
-    if (matchingBtn) matchingBtn.classList.add('active');
+  // Keep Toolbar Dropdown in sync
+  const distanceSelect = document.getElementById('distanceSelect');
+  if (distanceSelect && distanceSelect.value !== distType) {
+    distanceSelect.value = distType;
   }
 
   // Switch to map view if currently in analytics view
@@ -1430,22 +1433,22 @@ function filterDistance(distType, btnElement) {
   renderSchoolList();
 
   if (distType === '5km') {
-    showToast('🎯 已切換篩選：輔英半徑 5 km 核心圈 (6 所學校 | 2.25萬學生)');
+    showToast('🎯 已過濾切換：輔英 0–5 km 核心圈 (6 所學校 | 2.25萬學生)');
     focusFooyinRadiusBounds(12.5);
   } else if (distType === '5-10km') {
-    showToast('⭕ 已切換篩選：輔英半徑 5–10 km 近郊擴散圈 (11 所學校 | 7.22萬學生)');
+    showToast('⭕ 已過濾切換：輔英 5–10 km 近郊擴散圈 (11 所學校 | 7.22萬學生)');
     focusFooyinRadiusBounds(11);
   } else if (distType === '10-50km') {
-    showToast('🏙️ 已切換篩選：輔英半徑 10–50 km 中距離生活圈 (48 所學校 | 18.20萬學生)');
+    showToast('🏙️ 已過濾切換：輔英 10–50 km 中距離生活圈 (48 所學校 | 18.20萬學生)');
     focusFooyinRadiusBounds(9.5);
   } else if (distType === '50-100km') {
-    showToast('📡 已切換篩選：輔英半徑 50–100 km 遠距離跨區圈 (26 所學校 | 3.75萬學生)');
+    showToast('📡 已過濾切換：輔英 50–100 km 遠距離跨區圈 (26 所學校 | 3.75萬學生)');
     focusFooyinRadiusBounds(8.5);
   } else if (distType === 'within10km') {
-    showToast('📡 已切換篩選：輔英半徑 10 km 核心涵蓋區 (17 所學校 | 9.48萬學生)');
+    showToast('📡 已過濾切換：輔英 10 km 以內核心區 (17 所學校 | 9.48萬學生)');
     focusFooyinRadiusBounds(11);
   } else {
-    showToast('🌐 已重置距離篩選，顯示全區 91 所學校');
+    showToast('🌐 已顯示全區 91 所學校全半徑圖資');
   }
 }
 

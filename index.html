@@ -107,23 +107,18 @@
         </button>
         <button class="filter-btn category-rural" data-category="rural" onclick="filterCategory('rural', this)">
           <i class="fa-solid fa-tree text-emerald"></i> 偏鄉/山區/離島 (31)
-        </button>
-        <!-- GIS Concentric Circle Distance Filter Buttons -->
-        <button class="filter-btn filter-dist-5km" data-dist="5km" onclick="filterDistance('5km', this)" title="輔英半徑 5km 核心圈">
-          <i class="fa-solid fa-circle-dot text-cyan"></i> 5km 核心 (6)
-        </button>
-        <button class="filter-btn filter-dist-10km" data-dist="5-10km" onclick="filterDistance('5-10km', this)" title="輔英半徑 5–10km 近郊擴散圈">
-          <i class="fa-solid fa-bullseye text-purple"></i> 5–10km 近郊 (11)
-        </button>
-        <button class="filter-btn filter-dist-10-50km" data-dist="10-50km" onclick="filterDistance('10-50km', this)" title="輔英半徑 10–50km 中距離生活圈">
-          <i class="fa-solid fa-city text-amber"></i> 10–50km 生活圈 (48)
-        </button>
-        <button class="filter-btn filter-dist-50-100km" data-dist="50-100km" onclick="filterDistance('50-100km', this)" title="輔英半徑 50–100km 遠距離跨區圈">
-          <i class="fa-solid fa-route text-emerald"></i> 50–100km 遠距離 (26)
-        </button>
-        <button class="filter-btn filter-dist-all10" data-dist="within10km" onclick="filterDistance('within10km', this)" title="輔英半徑 10km 環狀總涵蓋">
-          <i class="fa-solid fa-layer-group text-indigo"></i> 10km 核心區 (17)
-        </button>
+      </div>
+
+      <!-- GIS Concentric Circle Distance Select Dropdown (Compact, Non-blocking) -->
+      <div class="distance-filter">
+        <select id="distanceSelect" onchange="handleDistanceSelect()" title="點選切換以輔英科技大學為原點之半徑同心圓擴散過濾">
+          <option value="all">🎯 輔英 GIS 全半徑 (91所全涵蓋)</option>
+          <option value="5km">🎯 0–5 km 核心圈 (6所 | 2.25萬人)</option>
+          <option value="5-10km">⭕ 5–10 km 近郊擴散圈 (11所 | 7.22萬人)</option>
+          <option value="10-50km">🏙️ 10–50 km 中距離生活圈 (48所 | 18.20萬人)</option>
+          <option value="50-100km">📡 50–100 km 遠距離跨區圈 (26所 | 3.75萬人)</option>
+          <option value="within10km">📡 10 km 以內核心區 (17所 | 9.48萬人)</option>
+        </select>
       </div>
 
       <div class="city-filter">
