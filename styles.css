@@ -1019,9 +1019,10 @@ body {
 /* ==========================================================================
    VIEW 2: Analytics Dashboard Page
    ========================================================================== */
-#analyticsView {
+#analyticsView, #fooyinStrategyView {
   overflow-y: auto;
   background: #0b1120;
+  height: 100%;
 }
 
 .analytics-container {

@@ -1583,6 +1583,12 @@ let vocationalClusterBarInstance = null;
 let tveFlowStackedInstance = null;
 let matriculationTrendInstance = null;
 
+function getFooyinStrategyData() {
+  if (typeof FOOYIN_ADMISSIONS_STRATEGY_DATA !== 'undefined') return FOOYIN_ADMISSIONS_STRATEGY_DATA;
+  if (typeof window !== 'undefined' && window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return window.FOOYIN_ADMISSIONS_STRATEGY_DATA;
+  return null;
+}
+
 function renderFooyinStrategyDashboard() {
   buildVocationalClusterCharts();
   initTveSchoolSelector();
@@ -1594,8 +1600,9 @@ function renderFooyinStrategyDashboard() {
 
 // 1. Vocational Cluster Charts (衛生護理, 家政幼保, 餐旅, 食品等)
 function buildVocationalClusterCharts() {
-  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
-  const data = FOOYIN_ADMISSIONS_STRATEGY_DATA.vocationalClusters;
+  const strategyData = getFooyinStrategyData();
+  if (!strategyData) return;
+  const data = strategyData.vocationalClusters;
 
   // Doughnut Chart
   const ctxDoughnut = document.getElementById('vocationalClusterDoughnutChart');
@@ -1677,11 +1684,12 @@ function buildVocationalClusterCharts() {
 
 // 2. TVE Exam School Selector & Placement Flow Chart
 function initTveSchoolSelector() {
-  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const strategyData = getFooyinStrategyData();
+  if (!strategyData) return;
   const select = document.getElementById('tveSchoolSelect');
   if (!select) return;
 
-  const feederSchools = FOOYIN_ADMISSIONS_STRATEGY_DATA.topFeederSchools;
+  const feederSchools = strategyData.topFeederSchools;
   select.innerHTML = feederSchools.map(s => `<option value="${s.name}">${s.name} (距輔英 ${s.dist}km | 歷年錄取 ${s.enrolledCount}人)</option>`).join('');
 
   if (feederSchools.length > 0) {
@@ -1690,8 +1698,9 @@ function initTveSchoolSelector() {
 }
 
 function renderTveFlowForSchool(schoolName) {
-  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
-  const feeder = FOOYIN_ADMISSIONS_STRATEGY_DATA.topFeederSchools.find(s => s.name === schoolName) || FOOYIN_ADMISSIONS_STRATEGY_DATA.topFeederSchools[0];
+  const strategyData = getFooyinStrategyData();
+  if (!strategyData) return;
+  const feeder = strategyData.topFeederSchools.find(s => s.name === schoolName) || strategyData.topFeederSchools[0];
   if (!feeder) return;
 
   const titleEl = document.getElementById('tveChartTitle');
@@ -1736,13 +1745,14 @@ function renderTveFlowForSchool(schoolName) {
 
 // 3. Historical Matriculation Pathways Chart & Feeder School Table
 function buildMatriculationTrendChart() {
-  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const strategyData = getFooyinStrategyData();
+  if (!strategyData) return;
   const ctx = document.getElementById('matriculationTrendChart');
   if (!ctx) return;
 
   if (matriculationTrendInstance) matriculationTrendInstance.destroy();
 
-  const depts = FOOYIN_ADMISSIONS_STRATEGY_DATA.matriculationByDepartment;
+  const depts = strategyData.matriculationByDepartment;
   const colors = ['#06b6d4', '#8b5cf6', '#10b981', '#ec4899', '#f59e0b', '#6366f1', '#64748b'];
 
   matriculationTrendInstance = new Chart(ctx, {
@@ -1775,11 +1785,12 @@ function buildMatriculationTrendChart() {
 }
 
 function renderTopFeederTable() {
-  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const strategyData = getFooyinStrategyData();
+  if (!strategyData) return;
   const tableEl = document.getElementById('topFeederTable');
   if (!tableEl) return;
 
-  const feeders = FOOYIN_ADMISSIONS_STRATEGY_DATA.topFeederSchools;
+  const feeders = strategyData.topFeederSchools;
 
   let html = `
     <tbody>
@@ -1804,11 +1815,12 @@ function renderTopFeederTable() {
 
 // 4. Competitor Spatial Matrix Table
 function renderCompetitorMatrixTable() {
-  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const strategyData = getFooyinStrategyData();
+  if (!strategyData) return;
   const tableEl = document.getElementById('competitorMatrixTable');
   if (!tableEl) return;
 
-  const comps = FOOYIN_ADMISSIONS_STRATEGY_DATA.competitorAnalysis;
+  const comps = strategyData.competitorAnalysis;
 
   let html = `
     <tbody>
@@ -1841,11 +1853,12 @@ function renderCompetitorMatrixTable() {
 
 // 5. Admissions Outreach Funnel Chart
 function renderOutreachFunnelChart() {
-  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const strategyData = getFooyinStrategyData();
+  if (!strategyData) return;
   const container = document.getElementById('funnelContainer');
   if (!container) return;
 
-  const funnel = FOOYIN_ADMISSIONS_STRATEGY_DATA.funnelHistory;
+  const funnel = strategyData.funnelHistory;
   const maxCount = funnel[0].count;
 
   let html = '';

@@ -2256,6 +2256,9 @@ const FOOYIN_ADMISSIONS_STRATEGY_DATA = {
   ]
 };
 
+if (typeof window !== 'undefined') {
+  window.FOOYIN_ADMISSIONS_STRATEGY_DATA = FOOYIN_ADMISSIONS_STRATEGY_DATA;
+}
 if (typeof globalThis !== 'undefined') {
   globalThis.FOOYIN_ADMISSIONS_STRATEGY_DATA = FOOYIN_ADMISSIONS_STRATEGY_DATA;
 }
