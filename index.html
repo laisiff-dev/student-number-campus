@@ -70,6 +70,9 @@
         <button class="btn-check-all" onclick="checkAllSchoolsConnection()">
           <i class="fa-solid fa-arrows-rotate"></i> 執行全校連線確認與數據拉取
         </button>
+        <button class="nav-btn btn-radius-mode" id="btnRadiusAnalysis" onclick="toggleRadiusAnalysisMode()" title="點擊切換為以輔英科技大學為中心之半徑5km/10km GIS同心圓擴散地圖">
+          <i class="fa-solid fa-bullseye pulsing-ring"></i> 輔英 5km / 10km GIS 環狀分析
+        </button>
         <button class="nav-btn active" id="btnViewMap" onclick="switchMainView('map')">
           <i class="fa-solid fa-map-marked-alt"></i> GIS 地圖儀表板
         </button>
@@ -83,7 +86,7 @@
     <section class="toolbar-section">
       <div class="search-box">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="searchInput" placeholder="搜尋學校名稱、行政區（如：恆春高中、琉球國中、桃源國中、六龜高中...）" oninput="handleSearch()">
+        <input type="text" id="searchInput" placeholder="搜尋學校名稱、行政區（如：輔英科大、恆春高中、琉球國中、六龜高中...）" oninput="handleSearch()">
         <button class="clear-btn" id="clearSearchBtn" onclick="clearSearch()" style="display:none;">
           <i class="fa-solid fa-xmark"></i>
         </button>
@@ -105,6 +108,16 @@
         <button class="filter-btn category-rural" data-category="rural" onclick="filterCategory('rural', this)">
           <i class="fa-solid fa-tree text-emerald"></i> 偏鄉/山區/離島 (31)
         </button>
+        <!-- GIS Concentric Circle Distance Filter Buttons -->
+        <button class="filter-btn filter-dist-5km" data-dist="5km" onclick="filterDistance('5km', this)" title="輔英半徑 5km 核心圈">
+          <i class="fa-solid fa-circle-dot text-cyan"></i> 輔英 5km 核心 (6)
+        </button>
+        <button class="filter-btn filter-dist-10km" data-dist="5-10km" onclick="filterDistance('5-10km', this)" title="輔英半徑 5–10km 擴散圈">
+          <i class="fa-solid fa-bullseye text-purple"></i> 5–10km 擴散 (11)
+        </button>
+        <button class="filter-btn filter-dist-all10" data-dist="within10km" onclick="filterDistance('within10km', this)" title="輔英半徑 10km 環狀總涵蓋">
+          <i class="fa-solid fa-layer-group text-indigo"></i> 10km 總涵蓋 (17)
+        </button>
       </div>
 
       <div class="city-filter">
@@ -118,15 +131,15 @@
 
       <!-- Quick Jump Buttons -->
       <div class="quick-tags">
-        <span class="tag-title"><i class="fa-solid fa-bolt"></i> 熱門偏鄉精選：</span>
+        <span class="tag-title"><i class="fa-solid fa-bolt"></i> 熱門精選：</span>
+        <button class="quick-tag" onclick="selectSchoolByName('輔英科技大學')">輔英科大 (原點)</button>
+        <button class="quick-tag" onclick="selectSchoolByName('中山高級工商')">中山工商 (1.07km)</button>
         <button class="quick-tag" onclick="selectSchoolByName('恆春高級中學')">恆春高中</button>
         <button class="quick-tag" onclick="selectSchoolByName('琉球國民中學')">琉球國中(小琉球)</button>
         <button class="quick-tag" onclick="selectSchoolByName('六龜高級中學')">六龜高中</button>
         <button class="quick-tag" onclick="selectSchoolByName('桃源國民中學')">桃源國中</button>
         <button class="quick-tag" onclick="selectSchoolByName('玉井高級工商')">玉井工商</button>
         <button class="quick-tag" onclick="selectSchoolByName('後壁高級中學')">後壁高中</button>
-        <button class="quick-tag" onclick="selectSchoolByName('輔英科技大學')">輔英科大</button>
-        <button class="quick-tag" onclick="selectSchoolByName('中山高級工商')">中山工商</button>
       </div>
     </section>
 
@@ -152,12 +165,59 @@
             
             <!-- Map Floating Controls -->
             <div class="map-overlay-controls">
+              <button class="map-btn" onclick="focusFooyinRadiusBounds()" title="聚焦輔英10km同心圓視角">
+                <i class="fa-solid fa-crosshairs text-cyan"></i> 輔英同心圓視角
+              </button>
               <button class="map-btn" onclick="resetMapView()" title="重置高屏全圖視角">
                 <i class="fa-solid fa-compress"></i> 重置全圖
               </button>
               <button class="map-btn" onclick="toggleTileLayer()" title="切換地圖風格">
                 <i class="fa-solid fa-circle-half-stroke"></i> 切換風格
               </button>
+            </div>
+
+            <!-- Map Floating GIS Radius Control Panel -->
+            <div class="map-radius-control-card" id="mapRadiusControlCard">
+              <div class="card-header">
+                <h4><i class="fa-solid fa-compass-drafting text-cyan"></i> 輔英科大 GIS 同心圓擴散分析</h4>
+                <button class="btn-icon-xs" onclick="toggleRadiusCardMinimize()" title="展開 / 折疊面板">
+                  <i class="fa-solid fa-chevron-up" id="radiusMinIcon"></i>
+                </button>
+              </div>
+              <div class="card-body" id="radiusCardBody">
+                <div class="radius-stats-row">
+                  <div class="r-pill r-pill-5km" onclick="filterDistance('5km')">
+                    <div class="r-pill-title"><i class="fa-solid fa-circle-dot text-cyan"></i> 5 km 核心圈 (半徑5km)</div>
+                    <div class="r-pill-val">6 所學校 <span>| 22,560人</span></div>
+                  </div>
+                  <div class="r-pill r-pill-10km" onclick="filterDistance('5-10km')">
+                    <div class="r-pill-title"><i class="fa-solid fa-bullseye text-purple"></i> 5–10 km 擴散圈</div>
+                    <div class="r-pill-val">11 所學校 <span>| 72,200人</span></div>
+                  </div>
+                  <div class="r-pill r-pill-total" onclick="filterDistance('within10km')">
+                    <div class="r-pill-title"><i class="fa-solid fa-layer-group text-indigo"></i> 10 km 環狀總涵蓋</div>
+                    <div class="r-pill-val">17 所學校 <span>| 94,760人</span></div>
+                  </div>
+                </div>
+                <div class="radius-toggles-row">
+                  <label class="toggle-checkbox">
+                    <input type="checkbox" id="chkCircle5km" checked onchange="toggleCircleLayer('5km', this.checked)">
+                    <span><i class="fa-solid fa-circle text-cyan"></i> 5 km 核心圖層 (半徑 5,000m)</span>
+                  </label>
+                  <label class="toggle-checkbox">
+                    <input type="checkbox" id="chkCircle10km" checked onchange="toggleCircleLayer('10km', this.checked)">
+                    <span><i class="fa-solid fa-circle text-purple"></i> 10 km 擴散圖層 (半徑 10,000m)</span>
+                  </label>
+                  <label class="toggle-checkbox">
+                    <input type="checkbox" id="chkDistanceLines" checked onchange="toggleDistanceLines(this.checked)">
+                    <span><i class="fa-solid fa-route text-amber"></i> 選取學校與輔英直線連結線</span>
+                  </label>
+                </div>
+                <div class="radius-actions">
+                  <button class="radius-act-btn" onclick="focusFooyinRadiusBounds()"><i class="fa-solid fa-crosshairs"></i> 聚焦輔英環狀視角</button>
+                  <button class="radius-act-btn secondary" onclick="filterDistance('all')"><i class="fa-solid fa-arrows-rotate"></i> 顯示全區視角</button>
+                </div>
+              </div>
             </div>
 
             <!-- Map Floating Legend -->

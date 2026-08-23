@@ -6,13 +6,31 @@
 let currentCategory = 'all';
 let currentCity = 'all';
 let currentSearch = '';
+let currentDistanceFilter = 'all'; // 'all', '5km', '5-10km', 'within10km'
 let selectedSchool = null;
 
-// Map & Chart Instances
+// Fooyin Center GIS Configuration
+const FOOYIN_CENTER = {
+  id: 'u7',
+  name: '輔英科技大學',
+  lat: 22.5978,
+  lng: 120.3956
+};
+
+// Map & GIS Layers
 let map = null;
 let mapMarkers = {};
 let currentTileLayer = null;
 let isDarkTile = true;
+
+// GIS Buffer Rings & Beacon Layers
+let circle5kmLayer = null;
+let circle10kmLayer = null;
+let tooltip5kmMarker = null;
+let tooltip10kmMarker = null;
+let fooyinBeaconMarker = null;
+let distancePolylineLayer = null;
+let showDistanceLines = true;
 
 // Inspector Chart Instances
 let gradeBarChartInstance = null;
@@ -29,6 +47,26 @@ let tierOverviewChartInstance = null;
 const DARK_TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 const LIGHT_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
+// Haversine Distance Calculator (km)
+function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Compute distance from Fooyin for all schools
+SCHOOLS_DATA.forEach(school => {
+  school.distFromFooyin = calculateHaversineDistance(
+    FOOYIN_CENTER.lat, FOOYIN_CENTER.lng,
+    school.lat, school.lng
+  );
+});
+
 // Initialize App on DOM Load
 document.addEventListener('DOMContentLoaded', () => {
   initGISMap();
@@ -37,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // First action: check connection health for all schools
   checkAllSchoolsConnection(false);
 
-  // Default select 輔英科技大學 (or first school)
-  const defaultSchool = SCHOOLS_DATA.find(s => s.name.includes('輔英')) || SCHOOLS_DATA[0];
+  // Default select 輔英科技大學
+  const defaultSchool = SCHOOLS_DATA.find(s => s.id === 'u7') || SCHOOLS_DATA[0];
   if (defaultSchool) {
     selectSchool(defaultSchool.id);
   }
@@ -53,8 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function initGISMap() {
   // Center on Kaohsiung/Pingtung Region
   map = L.map('map', {
-    center: [22.62, 120.40],
-    zoom: 10,
+    center: [22.60, 120.40],
+    zoom: 11,
     zoomControl: false
   });
 
@@ -67,20 +105,33 @@ function initGISMap() {
     maxZoom: 18
   }).addTo(map);
 
+  // Initialize Fooyin Concentric Buffer Rings (5km & 10km) & Pulsing Beacon
+  initFooyinRadiusLayers();
+
   // Create Markers for all schools
   SCHOOLS_DATA.forEach(school => {
     const markerIcon = createCustomMarkerIcon(school.category);
     const marker = L.marker([school.lat, school.lng], { icon: markerIcon }).addTo(map);
 
+    const distStr = school.id === 'u7' ? 'GIS 原點中心' : `距輔英 ${school.distFromFooyin.toFixed(2)} km`;
+    const ringTag = school.distFromFooyin <= 5 
+      ? '🎯 5km 核心圈' 
+      : school.distFromFooyin <= 10 
+      ? '⭕ 5-10km 擴散圈' 
+      : '📡 10km 以外';
+
     // Popup Content
     const popupHtml = `
       <div class="popup-content">
-        <span class="card-category cat-${school.category}">${school.categoryName}</span>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px;">
+          <span class="card-category cat-${school.category}">${school.categoryName}</span>
+          <span class="dist-pill ${school.id === 'u7' ? 'dist-center' : school.distFromFooyin <= 5 ? 'dist-5km' : school.distFromFooyin <= 10 ? 'dist-10km' : 'dist-outer'}">${ringTag} | ${distStr}</span>
+        </div>
         <h4>${school.name}</h4>
         <p><i class="fa-solid fa-location-dot"></i> ${school.district}</p>
         <div class="popup-total"><i class="fa-solid fa-users"></i> 全校總人數：${school.total.toLocaleString()} 人</div>
         <button class="popup-btn" onclick="selectSchool('${school.id}')">
-          <i class="fa-solid fa-chart-line"></i> 點擊檢視各年級人數與權威校網
+          <i class="fa-solid fa-chart-line"></i> 檢視與輔英距離及詳細數據
         </button>
       </div>
     `;
@@ -94,8 +145,92 @@ function initGISMap() {
     mapMarkers[school.id] = marker;
   });
 
-  // Auto fit map bounds to cover Tainan, Kaohsiung, Pingtung
-  setTimeout(() => fitAllMarkersBounds(), 200);
+  // Auto fit map bounds to cover Fooyin 10km Concentric Circles by default
+  setTimeout(() => focusFooyinRadiusBounds(), 200);
+}
+
+// Initialize Concentric Rings (5km / 10km) & Fooyin Beacon Marker
+function initFooyinRadiusLayers() {
+  if (!map) return;
+
+  // 5 km Core Ring (Cyan / Emerald)
+  circle5kmLayer = L.circle([FOOYIN_CENTER.lat, FOOYIN_CENTER.lng], {
+    radius: 5000,
+    color: '#06b6d4',
+    fillColor: '#06b6d4',
+    fillOpacity: 0.14,
+    weight: 2.5,
+    dashArray: '6, 6'
+  }).addTo(map);
+
+  // 10 km Expansion Ring (Violet / Purple)
+  circle10kmLayer = L.circle([FOOYIN_CENTER.lat, FOOYIN_CENTER.lng], {
+    radius: 10000,
+    color: '#8b5cf6',
+    fillColor: '#8b5cf6',
+    fillOpacity: 0.08,
+    weight: 2.5,
+    dashArray: '8, 8'
+  }).addTo(map);
+
+  // North Latitude Points for Ring Tooltips
+  const p5kmNorth = [FOOYIN_CENTER.lat + (5 / 111.32), FOOYIN_CENTER.lng];
+  const p10kmNorth = [FOOYIN_CENTER.lat + (10 / 111.32), FOOYIN_CENTER.lng];
+
+  tooltip5kmMarker = L.marker(p5kmNorth, {
+    icon: L.divIcon({ className: 'hidden-icon', iconSize: [0, 0] })
+  }).addTo(map);
+
+  tooltip5kmMarker.bindTooltip('🎯 5 km 核心圈 (6所學校 | 2.25萬學生)', {
+    permanent: true,
+    direction: 'top',
+    className: 'radius-tooltip tooltip-5km'
+  });
+
+  tooltip10kmMarker = L.marker(p10kmNorth, {
+    icon: L.divIcon({ className: 'hidden-icon', iconSize: [0, 0] })
+  }).addTo(map);
+
+  tooltip10kmMarker.bindTooltip('⭕ 10 km 擴散圈 (17所學校 | 9.47萬學生)', {
+    permanent: true,
+    direction: 'top',
+    className: 'radius-tooltip tooltip-10km'
+  });
+
+  // Center Fooyin Beacon Pulsing Marker
+  const beaconIcon = L.divIcon({
+    className: 'custom-beacon-leaflet-marker',
+    html: `
+      <div class="fy-beacon-marker" title="輔英科技大學 (GIS 原點中心)">
+        <div class="beacon-ripple"></div>
+        <div class="beacon-ripple-outer"></div>
+        <div class="beacon-core"><i class="fa-solid fa-graduation-cap"></i></div>
+      </div>
+    `,
+    iconSize: [42, 42],
+    iconAnchor: [21, 21]
+  });
+
+  fooyinBeaconMarker = L.marker([FOOYIN_CENTER.lat, FOOYIN_CENTER.lng], {
+    icon: beaconIcon,
+    zIndexOffset: 2000
+  }).addTo(map);
+
+  fooyinBeaconMarker.bindPopup(`
+    <div class="popup-content">
+      <span class="card-category cat-university" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6);">🎯 GIS 原點中心</span>
+      <h4>輔英科技大學</h4>
+      <p><i class="fa-solid fa-location-dot"></i> 高雄市大寮區進學路151號</p>
+      <div class="popup-total"><i class="fa-solid fa-users"></i> 全校總人數：9,200 人</div>
+      <button class="popup-btn" onclick="focusFooyinRadiusBounds()">
+        <i class="fa-solid fa-crosshairs"></i> 聚焦半徑 5km / 10km 同心圓視野
+      </button>
+    </div>
+  `);
+
+  fooyinBeaconMarker.on('click', () => {
+    selectSchool('u7', false);
+  });
 }
 
 // Custom Marker DivIcon Generator
@@ -218,11 +353,20 @@ function selectSchoolByName(nameStr) {
 
 function getFilteredSchools() {
   return SCHOOLS_DATA.filter(school => {
-    // Rural category match
+    // Category match
     if (currentCategory === 'rural') {
       if (!school.isRural) return false;
     } else if (currentCategory !== 'all' && school.category !== currentCategory) {
       return false;
+    }
+
+    // Distance Ring Match
+    if (currentDistanceFilter === '5km') {
+      if (school.distFromFooyin > 5) return false;
+    } else if (currentDistanceFilter === '5-10km') {
+      if (school.distFromFooyin <= 5 || school.distFromFooyin > 10) return false;
+    } else if (currentDistanceFilter === 'within10km') {
+      if (school.distFromFooyin > 10) return false;
     }
 
     // City match
@@ -285,10 +429,22 @@ function renderSchoolList() {
       ? `<span class="rural-badge">${school.ruralTag}</span>` 
       : '';
 
+    let distBadgeHtml = '';
+    if (school.id === 'u7') {
+      distBadgeHtml = `<span class="dist-pill dist-center"><i class="fa-solid fa-bullseye text-cyan"></i> 原點中心</span>`;
+    } else if (school.distFromFooyin <= 5) {
+      distBadgeHtml = `<span class="dist-pill dist-5km" title="5km核心圈"><i class="fa-solid fa-circle-dot"></i> 距輔英 ${school.distFromFooyin.toFixed(2)} km</span>`;
+    } else if (school.distFromFooyin <= 10) {
+      distBadgeHtml = `<span class="dist-pill dist-10km" title="5-10km擴散圈"><i class="fa-solid fa-bullseye"></i> 距輔英 ${school.distFromFooyin.toFixed(2)} km</span>`;
+    } else {
+      distBadgeHtml = `<span class="dist-pill dist-outer"><i class="fa-solid fa-compass"></i> 距輔英 ${school.distFromFooyin.toFixed(1)} km</span>`;
+    }
+
     html += `
       <div class="school-card ${isSelected ? 'selected' : ''}" onclick="selectSchool('${school.id}')">
         <div class="card-top">
           <span class="card-category cat-${school.category}">${school.categoryName}</span>
+          ${distBadgeHtml}
           ${ruralTagHtml}
           ${statusBadgeHtml}
         </div>
@@ -305,7 +461,11 @@ function renderSchoolList() {
   
   // Auto-fit bounds for current filtered markers if not selecting a specific school
   if (map && !selectedSchool) {
-    fitAllMarkersBounds();
+    if (currentDistanceFilter !== 'all') {
+      focusFooyinRadiusBounds();
+    } else {
+      fitAllMarkersBounds();
+    }
   }
 }
 
@@ -329,6 +489,9 @@ function selectSchool(schoolId, flyMap = true) {
     }
     marker.openPopup();
   }
+
+  // Draw GIS Polyline distance connection from Fooyin
+  drawDistancePolyline(school);
 
   // Render Inspector Panel
   renderInspectorPanel(school);
@@ -400,6 +563,50 @@ function renderInspectorPanel(school) {
   const diffClass = tierInfo.diffFromAvg >= 0 ? 'text-higher' : 'text-lower';
   const diffSign = tierInfo.diffFromAvg >= 0 ? '+' : '';
 
+  // GIS Distance Calculation
+  const distFromFy = school.distFromFooyin !== undefined 
+    ? school.distFromFooyin 
+    : calculateHaversineDistance(FOOYIN_CENTER.lat, FOOYIN_CENTER.lng, school.lat, school.lng);
+
+  let distCategoryLabel = '';
+  let distGaugeClass = '';
+  let distPct = Math.min(100, Math.round((distFromFy / 20) * 100));
+
+  if (school.id === 'u7') {
+    distCategoryLabel = '🎯 GIS 原點中心點';
+    distGaugeClass = 'fill-5km';
+  } else if (distFromFy <= 5) {
+    distCategoryLabel = '🎯 5 km 核心圈';
+    distGaugeClass = 'fill-5km';
+  } else if (distFromFy <= 10) {
+    distCategoryLabel = '⭕ 5–10 km 擴散圈';
+    distGaugeClass = 'fill-10km';
+  } else {
+    distCategoryLabel = '📡 10 km 以外遠距';
+    distGaugeClass = 'fill-outer';
+  }
+
+  const inspectorDistanceHtml = `
+    <div class="inspector-distance-card">
+      <div class="dist-card-header">
+        <span class="dist-card-title"><i class="fa-solid fa-compass text-cyan"></i> 輔英科技大學 GIS 空間距離分析</span>
+        <span class="dist-pill ${school.id === 'u7' ? 'dist-center' : distFromFy <= 5 ? 'dist-5km' : distFromFy <= 10 ? 'dist-10km' : 'dist-outer'}">${distCategoryLabel}</span>
+      </div>
+      <div class="dist-metric-row">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">${school.id === 'u7' ? '為半徑圈原點中心：' : '與輔英直線距離：'}</span>
+        <span class="dist-num-display">${school.id === 'u7' ? '0.00 km' : distFromFy.toFixed(2) + ' km'}</span>
+      </div>
+      <div class="dist-gauge-container" title="距離原點 20km 標尺占比">
+        <div class="dist-gauge-fill ${distGaugeClass}" style="width: ${school.id === 'u7' ? '100' : distPct}%;"></div>
+      </div>
+      ${school.id !== 'u7' ? `
+        <button class="dist-draw-line-btn" onclick="drawDistancePolyline(selectedSchool); focusFooyinRadiusBounds();">
+          <i class="fa-solid fa-route"></i> 在地圖上與輔英畫連線並聚焦同心圓
+        </button>
+      ` : ''}
+    </div>
+  `;
+
   // Generate HTML
   inspector.innerHTML = `
     <div class="school-detail-card">
@@ -412,6 +619,7 @@ function renderInspectorPanel(school) {
         <h2>${school.name}</h2>
         <div class="district-text"><i class="fa-solid fa-building"></i> 校址行政區：${school.district}</div>
         ${connectionHeaderHtml}
+        ${inspectorDistanceHtml}
 
         <!-- Same-Tier Rank Badge -->
         <div class="peer-rank-badge">
@@ -1101,3 +1309,162 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 400);
   }, 3500);
 }
+
+/* ==========================================================================
+   7. Fooyin Concentric Circle GIS Radius Action Helpers
+   ========================================================================== */
+function drawDistancePolyline(school) {
+  if (!map) return;
+  if (distancePolylineLayer) {
+    map.removeLayer(distancePolylineLayer);
+    distancePolylineLayer = null;
+  }
+
+  if (!showDistanceLines || !school || school.id === 'u7') return;
+
+  const latlngs = [
+    [FOOYIN_CENTER.lat, FOOYIN_CENTER.lng],
+    [school.lat, school.lng]
+  ];
+
+  const ringTag = school.distFromFooyin <= 5 
+    ? '5km 核心圈' 
+    : school.distFromFooyin <= 10 
+    ? '5-10km 擴散圈' 
+    : '10km 外遠距';
+
+  distancePolylineLayer = L.polyline(latlngs, {
+    color: '#38bdf8',
+    weight: 3,
+    opacity: 0.85,
+    dashArray: '8, 8'
+  }).addTo(map);
+
+  distancePolylineLayer.bindTooltip(`📍 輔英 ➔ ${school.name}: 直線距離 ${school.distFromFooyin.toFixed(2)} km (${ringTag})`, {
+    permanent: false,
+    sticky: true,
+    className: 'radius-tooltip'
+  });
+}
+
+function filterDistance(distType, btnElement) {
+  currentDistanceFilter = distType;
+
+  // Update button active state
+  document.querySelectorAll('.filter-btn[data-dist]').forEach(btn => btn.classList.remove('active'));
+  if (btnElement) {
+    btnElement.classList.add('active');
+  } else {
+    const matchingBtn = document.querySelector(`.filter-btn[data-dist="${distType}"]`);
+    if (matchingBtn) matchingBtn.classList.add('active');
+  }
+
+  // Switch to map view if currently in analytics view
+  switchMainView('map');
+
+  renderSchoolList();
+
+  if (distType === '5km') {
+    showToast('🎯 已切換篩選：輔英半徑 5 km 核心圈 (6 所學校 | 2.25萬學生)');
+    focusFooyinRadiusBounds(12.5);
+  } else if (distType === '5-10km') {
+    showToast('⭕ 已切換篩選：輔英半徑 5–10 km 擴散圈 (11 所學校 | 7.22萬學生)');
+    focusFooyinRadiusBounds();
+  } else if (distType === 'within10km') {
+    showToast('📡 已切換篩選：輔英半徑 10 km 環狀總涵蓋 (17 所學校 | 9.48萬學生)');
+    focusFooyinRadiusBounds();
+  } else {
+    showToast('🌐 已重置距離篩選，顯示全區 91 所學校');
+  }
+}
+
+function toggleRadiusAnalysisMode() {
+  switchMainView('map');
+  currentDistanceFilter = 'within10km';
+  
+  // Highlight distance button
+  document.querySelectorAll('.filter-btn[data-dist]').forEach(btn => btn.classList.remove('active'));
+  const btn10 = document.querySelector('.filter-btn[data-dist="within10km"]');
+  if (btn10) btn10.classList.add('active');
+
+  // Select Fooyin
+  const fy = SCHOOLS_DATA.find(s => s.id === 'u7');
+  if (fy) {
+    selectedSchool = fy;
+  }
+
+  renderSchoolList();
+  if (fy) renderInspectorPanel(fy);
+
+  // Ensure circles visible
+  toggleCircleLayer('5km', true);
+  toggleCircleLayer('10km', true);
+  
+  const chk5 = document.getElementById('chkCircle5km');
+  const chk10 = document.getElementById('chkCircle10km');
+  if (chk5) chk5.checked = true;
+  if (chk10) chk10.checked = true;
+
+  setTimeout(() => {
+    focusFooyinRadiusBounds();
+  }, 100);
+
+  showToast('🎯 已開啟【輔英科技大學】半徑 5km / 10km GIS 同心圓動態擴散地圖！');
+}
+
+function focusFooyinRadiusBounds(customZoom = null) {
+  if (!map) return;
+  if (customZoom) {
+    map.flyTo([FOOYIN_CENTER.lat, FOOYIN_CENTER.lng], customZoom, { duration: 1.2 });
+  } else if (circle10kmLayer) {
+    map.fitBounds(circle10kmLayer.getBounds().pad(0.08));
+  } else {
+    map.flyTo([FOOYIN_CENTER.lat, FOOYIN_CENTER.lng], 11.5, { duration: 1.2 });
+  }
+}
+
+function toggleCircleLayer(ringType, visible) {
+  if (!map) return;
+  if (ringType === '5km') {
+    if (visible) {
+      if (circle5kmLayer && !map.hasLayer(circle5kmLayer)) map.addLayer(circle5kmLayer);
+      if (tooltip5kmMarker && !map.hasLayer(tooltip5kmMarker)) map.addLayer(tooltip5kmMarker);
+    } else {
+      if (circle5kmLayer && map.hasLayer(circle5kmLayer)) map.removeLayer(circle5kmLayer);
+      if (tooltip5kmMarker && map.hasLayer(tooltip5kmMarker)) map.removeLayer(tooltip5kmMarker);
+    }
+  } else if (ringType === '10km') {
+    if (visible) {
+      if (circle10kmLayer && !map.hasLayer(circle10kmLayer)) map.addLayer(circle10kmLayer);
+      if (tooltip10kmMarker && !map.hasLayer(tooltip10kmMarker)) map.addLayer(tooltip10kmMarker);
+    } else {
+      if (circle10kmLayer && map.hasLayer(circle10kmLayer)) map.removeLayer(circle10kmLayer);
+      if (tooltip10kmMarker && map.hasLayer(tooltip10kmMarker)) map.removeLayer(tooltip10kmMarker);
+    }
+  }
+}
+
+function toggleDistanceLines(visible) {
+  showDistanceLines = visible;
+  if (!visible && distancePolylineLayer && map) {
+    map.removeLayer(distancePolylineLayer);
+    distancePolylineLayer = null;
+  } else if (visible && selectedSchool) {
+    drawDistancePolyline(selectedSchool);
+  }
+}
+
+function toggleRadiusCardMinimize() {
+  const card = document.getElementById('mapRadiusControlCard');
+  const icon = document.getElementById('radiusMinIcon');
+  if (!card) return;
+
+  if (card.classList.contains('minimized')) {
+    card.classList.remove('minimized');
+    if (icon) icon.className = 'fa-solid fa-chevron-up';
+  } else {
+    card.classList.add('minimized');
+    if (icon) icon.className = 'fa-solid fa-chevron-down';
+  }
+}
+
