@@ -2199,3 +2199,63 @@ const SCHOOLS_DATA = [
     "ruralTag": "🌊 潟湖沿海偏鄉"
   }
 ];
+
+// 輔英科技大學 招生地理與高職群科戰略數據集
+const FOOYIN_ADMISSIONS_STRATEGY_DATA = {
+  // 1. 高職群科別統計 (南臺灣地區高職生源統計)
+  vocationalClusters: [
+    { id: 'nursing', name: '衛生與護理類', count: 6850, color: '#06b6d4', description: '護理系、助產系核心生源' },
+    { id: 'home_ec', name: '家政群幼保類', count: 5420, color: '#ec4899', description: '幼兒保育系、高齡長照系核心生源' },
+    { id: 'hospitality', name: '餐旅管理群', count: 9180, color: '#f59e0b', description: '餐旅管理系、烘焙管理系生源' },
+    { id: 'food_science', name: '食品群與化學', count: 3260, color: '#10b981', description: '保健營養系、食品科技系生源' },
+    { id: 'biotech', name: '農生/水產生技群', count: 2150, color: '#8b5cf6', description: '醫檢生技系、環境衛生系生源' },
+    { id: 'business', name: '商管與應用外語群', count: 12450, color: '#6366f1', description: '應用外語系、健康事業管理系生源' },
+    { id: 'engineering', name: '工業電機電子群', count: 15300, color: '#64748b', description: '資訊管理系、職業安全衛生系生源' }
+  ],
+
+  // 2. 歷年招生轉換率漏斗 (宣導 ➔ 報名 ➔ 註冊)
+  funnelHistory: [
+    { stage: '入校宣導/國高中說明會', count: 15400, unit: '接觸學生數', rate: '100%', note: '全區 120 場次實體與線上宣導' },
+    { stage: '填報意向與統測報名', count: 6850, unit: '意向報考人數', rate: '44.5%', note: '將輔英納入第一志願群' },
+    { stage: '四技二專分發錄取', count: 3120, unit: '正備取人數', rate: '45.5%', note: '正式錄取生源' },
+    { stage: '實際完成報到註冊', count: 2400, unit: '註冊入學人數', rate: '76.9%', note: '報到註冊率 76.9%' }
+  ],
+
+  // 3. 輔英歷年熱門錄取系所 (111 ~ 113 學年度人數)
+  matriculationByDepartment: [
+    { dept: '護理學系 (含學士後護理)', y111: 1120, y112: 1150, y113: 1180, growth: '+5.4%' },
+    { dept: '醫學檢驗生物技術學系', y111: 240, y112: 245, y113: 250, growth: '+4.2%' },
+    { dept: '保健營養學系', y111: 210, y112: 220, y113: 230, growth: '+9.5%' },
+    { dept: '幼兒保育暨產業學系', y111: 180, y112: 185, y113: 190, growth: '+5.6%' },
+    { dept: '餐旅管理學系', y111: 220, y112: 210, y113: 215, growth: '-2.3%' },
+    { dept: '職業安全衛生與環境工程系', y111: 150, y112: 160, y113: 165, growth: '+10.0%' },
+    { dept: '應用外語學系', y111: 160, y112: 165, y113: 170, growth: '+6.25%' }
+  ],
+
+  // 4. 同質競爭科技大學與同心圓距離分析
+  competitorAnalysis: [
+    { name: '美和科技大學', type: '醫護/護理/長照同質校', dist: 26.3, ring: '10–50km 生活圈', city: '屏東縣內埔鄉', overlapRate: '82%', strength: '護理、長照、幼保科系重疊' },
+    { name: '嘉南藥理大學', type: '醫藥/食品/保健同質校', dist: 48.2, ring: '10–50km 生活圈', city: '台南市仁德區', overlapRate: '75%', strength: '藥學、保健營養、環安重疊' },
+    { name: '中華醫事科技大學', type: '醫護/醫檢/視光同質校', dist: 45.1, ring: '10–50km 生活圈', city: '台南市仁德區', overlapRate: '78%', strength: '醫檢、護理、視光重疊' },
+    { name: '樹人醫護管理專科學校', type: '醫護專科同質校', dist: 31.5, ring: '10–50km 生活圈', city: '高雄市路竹區', overlapRate: '88%', strength: '護理、視光、物理治療重疊' },
+    { name: '育英醫護管理專科學校', type: '醫護專科同質校', dist: 8.2, ring: '5–10km 近郊圈', city: '高雄市三民區', overlapRate: '90%', strength: '護理、幼保核心重疊' },
+    { name: '敏惠醫護管理專科學校', type: '醫護專科同質校', dist: 82.4, ring: '50–100km 遠距圈', city: '台南市柳營區', overlapRate: '80%', strength: '護理、長期照顧重疊' },
+    { name: '正修科技大學', type: '綜合型科大', dist: 7.35, ring: '5–10km 近郊圈', city: '高雄市鳥松區', overlapRate: '45%', strength: '餐旅、幼保、資管區域搶生' },
+    { name: '國立高雄餐旅大學', type: '餐旅專門科大', dist: 5.10, ring: '5–10km 近郊圈', city: '高雄市小港區', overlapRate: '55%', strength: '餐旅管理系頂尖競爭' }
+  ],
+
+  // 5. 熱門生源高中職 (Top Feeder Schools to Fooyin)
+  topFeederSchools: [
+    { name: '中山高級工商職業學校', dist: 1.07, city: '高雄市大寮區', enrolledCount: 385, topDepts: '護理系、幼保系、餐旅系', outreachVisits: 8, conversionRate: '34.2%', tveFlowFooyin: '42.5%', tveFlowNational: '22.0%', tveFlowOther: '35.5%' },
+    { name: '高英高級工商職業學校', dist: 2.39, city: '高雄市大寮區', enrolledCount: 215, topDepts: '資訊系、環安系、餐旅系', outreachVisits: 6, conversionRate: '31.5%', tveFlowFooyin: '38.0%', tveFlowNational: '25.0%', tveFlowOther: '37.0%' },
+    { name: '鳳山高級商工職業學校', dist: 5.82, city: '高雄市鳳山區', enrolledCount: 168, topDepts: '保營系、應外系、餐旅系', outreachVisits: 5, conversionRate: '28.4%', tveFlowFooyin: '28.5%', tveFlowNational: '45.0%', tveFlowOther: '26.5%' },
+    { name: '樹德高級家事商業職業學校', dist: 8.95, city: '高雄市三民區', enrolledCount: 195, topDepts: '幼保系、美容保養系、護理系', outreachVisits: 6, conversionRate: '32.0%', tveFlowFooyin: '36.5%', tveFlowNational: '28.0%', tveFlowOther: '35.5%' },
+    { name: '國立屏東高級工業職業學校', dist: 14.2, city: '屏東縣屏東市', enrolledCount: 142, topDepts: '醫檢系、環安系、護理系', outreachVisits: 4, conversionRate: '26.8%', tveFlowFooyin: '24.0%', tveFlowNational: '52.0%', tveFlowOther: '24.0%' },
+    { name: '美和科技大學 (五專部)', dist: 26.3, city: '屏東縣內埔鄉', enrolledCount: 110, topDepts: '護理系二技部', outreachVisits: 3, conversionRate: '24.5%', tveFlowFooyin: '22.0%', tveFlowNational: '48.0%', tveFlowOther: '30.0%' },
+    { name: '國立曾文高級農工職業學校', dist: 62.5, city: '台南市麻豆區', enrolledCount: 88, topDepts: '食品系、保營系、護理系', outreachVisits: 3, conversionRate: '22.1%', tveFlowFooyin: '18.5%', tveFlowNational: '55.0%', tveFlowOther: '26.5%' }
+  ]
+};
+
+if (typeof globalThis !== 'undefined') {
+  globalThis.FOOYIN_ADMISSIONS_STRATEGY_DATA = FOOYIN_ADMISSIONS_STRATEGY_DATA;
+}

@@ -967,19 +967,33 @@ function buildInspectorGradeDonutChart(labels, data) {
    5. VIEW Switcher & Analytics Dashboard Visualizations
    ========================================================================== */
 function switchMainView(viewName) {
-  document.querySelectorAll('.view-pane').forEach(pane => pane.classList.remove('active'));
+  const mapView = document.getElementById('mapView');
+  const analyticsView = document.getElementById('analyticsView');
+  const fooyinStrategyView = document.getElementById('fooyinStrategyView');
+
+  if (mapView) mapView.style.display = 'none';
+  if (analyticsView) analyticsView.style.display = 'none';
+  if (fooyinStrategyView) fooyinStrategyView.style.display = 'none';
+
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
   if (viewName === 'map') {
-    document.getElementById('mapView').classList.add('active');
-    document.getElementById('btnViewMap').classList.add('active');
+    if (mapView) mapView.style.display = 'flex';
+    const btnMap = document.getElementById('btnViewMap');
+    if (btnMap) btnMap.classList.add('active');
     if (map) {
       setTimeout(() => map.invalidateSize(), 100);
     }
   } else if (viewName === 'analytics') {
-    document.getElementById('analyticsView').classList.add('active');
-    document.getElementById('btnViewAnalytics').classList.add('active');
+    if (analyticsView) analyticsView.style.display = 'block';
+    const btnAnalytics = document.getElementById('btnViewAnalytics');
+    if (btnAnalytics) btnAnalytics.classList.add('active');
     renderAnalyticsCharts();
+  } else if (viewName === 'fooyinStrategy') {
+    if (fooyinStrategyView) fooyinStrategyView.style.display = 'block';
+    const btnStrat = document.getElementById('btnViewFooyinStrategy');
+    if (btnStrat) btnStrat.classList.add('active');
+    renderFooyinStrategyDashboard();
   }
 }
 
@@ -1559,6 +1573,302 @@ function toggleRadiusCardMinimize() {
     card.classList.add('minimized');
     if (icon) icon.className = 'fa-solid fa-chevron-down';
   }
+}
+
+/* ==========================================================================
+   8. Fooyin Admissions & Vocational Discipline Flow Strategy Dashboard Engine
+   ========================================================================== */
+let vocationalClusterDoughnutInstance = null;
+let vocationalClusterBarInstance = null;
+let tveFlowStackedInstance = null;
+let matriculationTrendInstance = null;
+
+function renderFooyinStrategyDashboard() {
+  buildVocationalClusterCharts();
+  initTveSchoolSelector();
+  buildMatriculationTrendChart();
+  renderTopFeederTable();
+  renderCompetitorMatrixTable();
+  renderOutreachFunnelChart();
+}
+
+// 1. Vocational Cluster Charts (衛生護理, 家政幼保, 餐旅, 食品等)
+function buildVocationalClusterCharts() {
+  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const data = FOOYIN_ADMISSIONS_STRATEGY_DATA.vocationalClusters;
+
+  // Doughnut Chart
+  const ctxDoughnut = document.getElementById('vocationalClusterDoughnutChart');
+  if (ctxDoughnut) {
+    if (vocationalClusterDoughnutInstance) vocationalClusterDoughnutInstance.destroy();
+
+    vocationalClusterDoughnutInstance = new Chart(ctxDoughnut, {
+      type: 'doughnut',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{
+          data: data.map(d => d.count),
+          backgroundColor: data.map(d => d.color),
+          borderWidth: 2,
+          borderColor: '#1e293b'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: '#f8fafc', font: { size: 11, family: 'Noto Sans TC' }, boxWidth: 12 }
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const total = data.reduce((acc, curr) => acc + curr.count, 0);
+                const pct = ((ctx.raw / total) * 100).toFixed(1);
+                return ` ${ctx.label}: ${ctx.raw.toLocaleString()} 人 (${pct}%)`;
+              }
+            }
+          }
+        },
+        cutout: '60%'
+      }
+    });
+  }
+
+  // Bar Chart with Fooyin Dept Mapping
+  const ctxBar = document.getElementById('vocationalClusterBarChart');
+  if (ctxBar) {
+    if (vocationalClusterBarInstance) vocationalClusterBarInstance.destroy();
+
+    vocationalClusterBarInstance = new Chart(ctxBar, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{
+          label: '高職群科總人數',
+          data: data.map(d => d.count),
+          backgroundColor: data.map(d => d.color),
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel: (ctx) => {
+                const item = data[ctx.dataIndex];
+                return `對接輔英系所: ${item.description}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#94a3b8', font: { family: 'Noto Sans TC', size: 11 } }, grid: { display: false } },
+          y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.08)' } }
+        }
+      }
+    });
+  }
+}
+
+// 2. TVE Exam School Selector & Placement Flow Chart
+function initTveSchoolSelector() {
+  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const select = document.getElementById('tveSchoolSelect');
+  if (!select) return;
+
+  const feederSchools = FOOYIN_ADMISSIONS_STRATEGY_DATA.topFeederSchools;
+  select.innerHTML = feederSchools.map(s => `<option value="${s.name}">${s.name} (距輔英 ${s.dist}km | 歷年錄取 ${s.enrolledCount}人)</option>`).join('');
+
+  if (feederSchools.length > 0) {
+    renderTveFlowForSchool(feederSchools[0].name);
+  }
+}
+
+function renderTveFlowForSchool(schoolName) {
+  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const feeder = FOOYIN_ADMISSIONS_STRATEGY_DATA.topFeederSchools.find(s => s.name === schoolName) || FOOYIN_ADMISSIONS_STRATEGY_DATA.topFeederSchools[0];
+  if (!feeder) return;
+
+  const titleEl = document.getElementById('tveChartTitle');
+  if (titleEl) {
+    titleEl.innerHTML = `<i class="fa-solid fa-diagram-project text-purple"></i> 【${feeder.name}】統測畢業生分發流向比例 (流向輔英 ${feeder.tveFlowFooyin} vs 國立 ${feeder.tveFlowNational} vs 他校 ${feeder.tveFlowOther})`;
+  }
+
+  const ctx = document.getElementById('tveFlowStackedChart');
+  if (ctx) {
+    if (tveFlowStackedInstance) tveFlowStackedInstance.destroy();
+
+    const fooyinPct = parseFloat(feeder.tveFlowFooyin);
+    const nationalPct = parseFloat(feeder.tveFlowNational);
+    const otherPct = parseFloat(feeder.tveFlowOther);
+
+    tveFlowStackedInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [feeder.name],
+        datasets: [
+          { label: '流向輔英科技大學 (%)', data: [fooyinPct], backgroundColor: '#06b6d4' },
+          { label: '流向國立科技大學 (%)', data: [nationalPct], backgroundColor: '#10b981' },
+          { label: '流向其它私立與一般大學 (%)', data: [otherPct], backgroundColor: '#8b5cf6' }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#f8fafc', font: { family: 'Noto Sans TC' } } },
+          tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw}%` } }
+        },
+        scales: {
+          x: { stacked: true, max: 100, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.08)' } },
+          y: { stacked: true, ticks: { color: '#fff', font: { family: 'Noto Sans TC', weight: 'bold' } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+}
+
+// 3. Historical Matriculation Pathways Chart & Feeder School Table
+function buildMatriculationTrendChart() {
+  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const ctx = document.getElementById('matriculationTrendChart');
+  if (!ctx) return;
+
+  if (matriculationTrendInstance) matriculationTrendInstance.destroy();
+
+  const depts = FOOYIN_ADMISSIONS_STRATEGY_DATA.matriculationByDepartment;
+  const colors = ['#06b6d4', '#8b5cf6', '#10b981', '#ec4899', '#f59e0b', '#6366f1', '#64748b'];
+
+  matriculationTrendInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['111 學年度', '112 學年度', '113 學年度'],
+      datasets: depts.map((d, idx) => ({
+        label: d.dept,
+        data: [d.y111, d.y112, d.y113],
+        borderColor: colors[idx % colors.length],
+        backgroundColor: colors[idx % colors.length],
+        borderWidth: 2.5,
+        tension: 0.35,
+        pointRadius: 5
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { color: '#f8fafc', font: { size: 11, family: 'Noto Sans TC' }, boxWidth: 10 } },
+        tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw} 人` } }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { family: 'Noto Sans TC' } }, grid: { display: false } },
+        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.08)' } }
+      }
+    }
+  });
+}
+
+function renderTopFeederTable() {
+  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const tableEl = document.getElementById('topFeederTable');
+  if (!tableEl) return;
+
+  const feeders = FOOYIN_ADMISSIONS_STRATEGY_DATA.topFeederSchools;
+
+  let html = `
+    <tbody>
+  `;
+
+  feeders.forEach(f => {
+    html += `
+      <tr>
+        <td><strong style="color: #fff;">${f.name}</strong><br><span style="font-size: 0.75rem; color: #94a3b8;">${f.city}</span></td>
+        <td><span class="dist-pill dist-5km" style="font-size: 0.72rem;">${f.dist} km</span></td>
+        <td><strong style="color: #38bdf8; font-size: 0.95rem;">${f.enrolledCount} 人</strong></td>
+        <td><span style="font-size: 0.8rem; color: #cbd5e1;">${f.topDepts}</span></td>
+        <td><span style="color: #fbbf24; font-weight: 700;">${f.outreachVisits} 場次</span></td>
+        <td><span style="color: #34d399; font-weight: 800;">${f.conversionRate}</span></td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody>`;
+  tableEl.innerHTML = html;
+}
+
+// 4. Competitor Spatial Matrix Table
+function renderCompetitorMatrixTable() {
+  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const tableEl = document.getElementById('competitorMatrixTable');
+  if (!tableEl) return;
+
+  const comps = FOOYIN_ADMISSIONS_STRATEGY_DATA.competitorAnalysis;
+
+  let html = `
+    <tbody>
+  `;
+
+  comps.forEach(c => {
+    const rateNum = parseInt(c.overlapRate);
+    const overlapBadge = rateNum >= 80 
+      ? `<span class="overlap-pill overlap-high"><i class="fa-solid fa-triangle-exclamation"></i> 高度重疊 (${c.overlapRate})</span>`
+      : rateNum >= 60 
+      ? `<span class="overlap-pill overlap-med"><i class="fa-solid fa-circle-nodes"></i> 中度重疊 (${c.overlapRate})</span>`
+      : `<span class="overlap-pill overlap-mod"><i class="fa-solid fa-compress"></i> 局部重疊 (${c.overlapRate})</span>`;
+
+    html += `
+      <tr>
+        <td><strong style="color: #fff;">${c.name}</strong></td>
+        <td><span class="badge-tag bg-purple" style="font-size: 0.72rem;">${c.type}</span></td>
+        <td><strong style="color: #38bdf8;">${c.dist} km</strong></td>
+        <td><span class="dist-pill dist-10km" style="font-size: 0.72rem;">${c.ring}</span></td>
+        <td><span style="color: #94a3b8;">${c.city}</span></td>
+        <td>${overlapBadge}</td>
+        <td><span style="font-size: 0.8rem; color: #cbd5e1;">${c.strength}</span></td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody>`;
+  tableEl.innerHTML = html;
+}
+
+// 5. Admissions Outreach Funnel Chart
+function renderOutreachFunnelChart() {
+  if (!window.FOOYIN_ADMISSIONS_STRATEGY_DATA) return;
+  const container = document.getElementById('funnelContainer');
+  if (!container) return;
+
+  const funnel = FOOYIN_ADMISSIONS_STRATEGY_DATA.funnelHistory;
+  const maxCount = funnel[0].count;
+
+  let html = '';
+  funnel.forEach((item, idx) => {
+    const widthPct = Math.max(15, Math.round((item.count / maxCount) * 100));
+
+    html += `
+      <div class="funnel-stage-item">
+        <div class="funnel-stage-header">
+          <span class="funnel-stage-name"><i class="fa-solid fa-angles-right text-cyan"></i> 第 ${idx + 1} 階段：${item.stage}</span>
+          <span class="funnel-stage-metrics">${item.count.toLocaleString()} ${item.unit} (階段比率: ${item.rate})</span>
+        </div>
+        <div class="funnel-bar-bg">
+          <div class="funnel-bar-fill stage-${idx}" style="width: ${widthPct}%;">
+            ${item.count.toLocaleString()} 人 (${widthPct}%)
+          </div>
+        </div>
+        <div class="funnel-stage-note">📌 說明：${item.note}</div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
 }
 
 

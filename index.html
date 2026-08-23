@@ -79,6 +79,9 @@
         <button class="nav-btn" id="btnViewAnalytics" onclick="switchMainView('analytics')">
           <i class="fa-solid fa-chart-line"></i> 高中／國中各年級總數變化
         </button>
+        <button class="nav-btn" id="btnViewFooyinStrategy" onclick="switchMainView('fooyinStrategy')" title="檢視輔英 5大招生地理與高職群科流向戰略">
+          <i class="fa-solid fa-user-graduate text-cyan"></i> 輔英招生地理與群科流向戰略
+        </button>
       </div>
     </header>
 
@@ -474,6 +477,181 @@
                 <table class="data-table" id="peerCompareTable">
                   <!-- Dynamically populated -->
                 </table>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- VIEW 3: Fooyin Admissions & Vocational Discipline Flow Strategy Pane -->
+        <div class="main-view-pane" id="fooyinStrategyView" style="display: none;">
+          <div class="analytics-header">
+            <h2><i class="fa-solid fa-user-graduate text-cyan"></i> 輔英科技大學 5大招生地理與高職群科流向戰略分析儀表板</h2>
+            <p>融合高職群科人數對照、統測報考分發流向、歷年錄取系所人數、同心圓競爭校空間分布與宣導轉換率漏斗圖資</p>
+          </div>
+
+          <!-- Top Strategic Summary KPI Row -->
+          <div class="summary-cards-grid">
+            <div class="stat-card">
+              <div class="card-icon bg-cyan-light"><i class="fa-solid fa-notes-medical text-cyan"></i></div>
+              <div class="card-data">
+                <span class="card-label">醫護/衛保/幼保類高職總人數</span>
+                <span class="card-number" id="stratKpiHealthCount">15,530 人</span>
+                <span class="card-sub text-cyan"><i class="fa-solid fa-crosshairs"></i> 輔英護理/醫檢/保營/幼保核心生源</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="card-icon bg-amber-light"><i class="fa-solid fa-utensils text-amber"></i></div>
+              <div class="card-data">
+                <span class="card-label">餐旅與食品群高職總人數</span>
+                <span class="card-number" id="stratKpiFoodCount">12,440 人</span>
+                <span class="card-sub text-amber"><i class="fa-solid fa-bowl-food"></i> 餐旅/烘焙/食品科技大宗生源</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="card-icon bg-purple-light"><i class="fa-solid fa-filter text-purple"></i></div>
+              <div class="card-data">
+                <span class="card-label">宣導 ➔ 註冊總轉換率</span>
+                <span class="card-number" id="stratKpiConversionRate">15.6%</span>
+                <span class="card-sub text-emerald"><i class="fa-solid fa-chart-line"></i> 意向報名註冊率達 76.9%</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="card-icon bg-green-light"><i class="fa-solid fa-compass-drafting text-emerald"></i></div>
+              <div class="card-data">
+                <span class="card-label">同心圓同質性競爭校系</span>
+                <span class="card-number" id="stratKpiCompetitorCount">8 所科技大學</span>
+                <span class="card-sub text-purple"><i class="fa-solid fa-route"></i> 50km圈內6所醫護同質學校</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 1: Vocational Discipline Cluster Breakdown -->
+          <section class="analytics-card-section">
+            <div class="section-title">
+              <span class="badge-tag bg-cyan">模組 1</span>
+              <h3>高職群科別人數統計與輔英系所對接分析（衛生護理、餐旅、食品、幼保等）</h3>
+            </div>
+
+            <div class="chart-row">
+              <div class="chart-box flex-1">
+                <h4><i class="fa-solid fa-chart-pie text-cyan"></i> 南臺灣地區高職代表群科人數佔比圖</h4>
+                <div class="canvas-wrapper" style="height: 320px;">
+                  <canvas id="vocationalClusterDoughnutChart"></canvas>
+                </div>
+              </div>
+              <div class="chart-box flex-1">
+                <h4><i class="fa-solid fa-chart-column text-amber"></i> 各群科人數規模與輔英核心對接系所</h4>
+                <div class="canvas-wrapper" style="height: 320px;">
+                  <canvas id="vocationalClusterBarChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 2: TVE Exam Applicants & Placement Flow -->
+          <section class="analytics-card-section">
+            <div class="section-title">
+              <span class="badge-tag bg-purple">模組 2</span>
+              <h3>各校統測報名人數與四技二專分發流向分析</h3>
+            </div>
+
+            <div class="peer-selector-bar">
+              <span class="selector-title"><i class="fa-solid fa-graduation-cap"></i> 選擇代表性高中職檢視分流：</span>
+              <select id="tveSchoolSelect" onchange="renderTveFlowForSchool(this.value)" class="tve-school-select">
+                <!-- Dynamically filled with top feeder schools -->
+              </select>
+            </div>
+
+            <div class="chart-row">
+              <div class="chart-box flex-1">
+                <h4 id="tveChartTitle"><i class="fa-solid fa-diagram-project text-purple"></i> 代表高中職統測畢業生分發流向比例 (流向輔英 % vs 國立 % vs 他校 %)</h4>
+                <div class="canvas-wrapper" style="height: 320px;">
+                  <canvas id="tveFlowStackedChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 3: Historical Matriculation Pathways -->
+          <section class="analytics-card-section">
+            <div class="section-title">
+              <span class="badge-tag bg-green">模組 3</span>
+              <h3>歷年畢業生實際錄取校系與人數趨勢 (111–113學年度)</h3>
+            </div>
+
+            <div class="chart-row">
+              <div class="chart-box flex-1">
+                <h4><i class="fa-solid fa-chart-line text-emerald"></i> 輔英 7 大熱門系所錄取人數演變趨勢 (護理、醫檢、保營、幼保等)</h4>
+                <div class="canvas-wrapper" style="height: 340px;">
+                  <canvas id="matriculationTrendChart"></canvas>
+                </div>
+              </div>
+              <div class="table-box flex-1">
+                <h4><i class="fa-solid fa-trophy text-amber"></i> 輔英熱門生源學校排行榜 (Top Feeder Schools)</h4>
+                <div class="table-responsive">
+                  <table class="data-table" id="topFeederTable">
+                    <thead>
+                      <tr>
+                        <th>生源學校名稱</th>
+                        <th>距離圈</th>
+                        <th>歷年錄取人數</th>
+                        <th>熱門錄取系所</th>
+                        <th>宣導場次</th>
+                        <th>轉換率</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Populated dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 4: Competitor Spatial Distribution & Matrix -->
+          <section class="analytics-card-section">
+            <div class="section-title">
+              <span class="badge-tag bg-amber">模组 4</span>
+              <h3>同心圓圈內競爭校分布與同質科系重疊矩陣分析</h3>
+            </div>
+
+            <div class="table-box">
+              <h4><i class="fa-solid fa-network-wired text-cyan"></i> 同質醫護/保健/餐旅科技大學空間重疊度對照表</h4>
+              <div class="table-responsive">
+                <table class="data-table" id="competitorMatrixTable">
+                  <thead>
+                    <tr>
+                      <th>競爭學校名稱</th>
+                      <th>競爭屬性分類</th>
+                      <th>與輔英直線距離</th>
+                      <th>所屬 GIS 圈層</th>
+                      <th>所在地點</th>
+                      <th>系所重疊率 (%)</th>
+                      <th>核心重疊系所與招生成效</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 5: Admissions Outreach Funnel -->
+          <section class="analytics-card-section">
+            <div class="section-title">
+              <span class="badge-tag bg-rose">模組 5</span>
+              <h3>歷年宣導紀錄 ➔ 報名 ➔ 註冊轉換率漏斗分析</h3>
+            </div>
+
+            <div class="chart-row">
+              <div class="chart-box flex-1">
+                <h4><i class="fa-solid fa-filter text-rose"></i> 輔英招生成效階段轉換漏斗 (Outreach ➔ App ➔ Enrolled)</h4>
+                <div class="funnel-container" id="funnelContainer">
+                  <!-- Dynamically generated funnel bars -->
+                </div>
               </div>
             </div>
           </section>
