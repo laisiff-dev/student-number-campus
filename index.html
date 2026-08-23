@@ -110,13 +110,19 @@
         </button>
         <!-- GIS Concentric Circle Distance Filter Buttons -->
         <button class="filter-btn filter-dist-5km" data-dist="5km" onclick="filterDistance('5km', this)" title="輔英半徑 5km 核心圈">
-          <i class="fa-solid fa-circle-dot text-cyan"></i> 輔英 5km 核心 (6)
+          <i class="fa-solid fa-circle-dot text-cyan"></i> 5km 核心 (6)
         </button>
-        <button class="filter-btn filter-dist-10km" data-dist="5-10km" onclick="filterDistance('5-10km', this)" title="輔英半徑 5–10km 擴散圈">
-          <i class="fa-solid fa-bullseye text-purple"></i> 5–10km 擴散 (11)
+        <button class="filter-btn filter-dist-10km" data-dist="5-10km" onclick="filterDistance('5-10km', this)" title="輔英半徑 5–10km 近郊擴散圈">
+          <i class="fa-solid fa-bullseye text-purple"></i> 5–10km 近郊 (11)
+        </button>
+        <button class="filter-btn filter-dist-10-50km" data-dist="10-50km" onclick="filterDistance('10-50km', this)" title="輔英半徑 10–50km 中距離生活圈">
+          <i class="fa-solid fa-city text-amber"></i> 10–50km 生活圈 (48)
+        </button>
+        <button class="filter-btn filter-dist-50-100km" data-dist="50-100km" onclick="filterDistance('50-100km', this)" title="輔英半徑 50–100km 遠距離跨區圈">
+          <i class="fa-solid fa-route text-emerald"></i> 50–100km 遠距離 (26)
         </button>
         <button class="filter-btn filter-dist-all10" data-dist="within10km" onclick="filterDistance('within10km', this)" title="輔英半徑 10km 環狀總涵蓋">
-          <i class="fa-solid fa-layer-group text-indigo"></i> 10km 總涵蓋 (17)
+          <i class="fa-solid fa-layer-group text-indigo"></i> 10km 核心區 (17)
         </button>
       </div>
 
@@ -165,8 +171,11 @@
             
             <!-- Map Floating Controls -->
             <div class="map-overlay-controls">
-              <button class="map-btn" onclick="focusFooyinRadiusBounds()" title="聚焦輔英10km同心圓視角">
-                <i class="fa-solid fa-crosshairs text-cyan"></i> 輔英同心圓視角
+              <button class="map-btn" onclick="focusFooyinRadiusBounds(10)" title="聚焦輔英10km近郊視角">
+                <i class="fa-solid fa-crosshairs text-cyan"></i> 10km視角
+              </button>
+              <button class="map-btn" onclick="focusFooyinRadiusBounds(50)" title="聚焦輔英50km生活圈視角">
+                <i class="fa-solid fa-globe text-amber"></i> 50km視角
               </button>
               <button class="map-btn" onclick="resetMapView()" title="重置高屏全圖視角">
                 <i class="fa-solid fa-compress"></i> 重置全圖
@@ -179,7 +188,7 @@
             <!-- Map Floating GIS Radius Control Panel -->
             <div class="map-radius-control-card" id="mapRadiusControlCard">
               <div class="card-header">
-                <h4><i class="fa-solid fa-compass-drafting text-cyan"></i> 輔英科大 GIS 同心圓擴散分析</h4>
+                <h4><i class="fa-solid fa-compass-drafting text-cyan"></i> 輔英科大 GIS 4重同心圓擴散分析</h4>
                 <button class="btn-icon-xs" onclick="toggleRadiusCardMinimize()" title="展開 / 折疊面板">
                   <i class="fa-solid fa-chevron-up" id="radiusMinIcon"></i>
                 </button>
@@ -187,35 +196,48 @@
               <div class="card-body" id="radiusCardBody">
                 <div class="radius-stats-row">
                   <div class="r-pill r-pill-5km" onclick="filterDistance('5km')">
-                    <div class="r-pill-title"><i class="fa-solid fa-circle-dot text-cyan"></i> 5 km 核心圈 (半徑5km)</div>
-                    <div class="r-pill-val">6 所學校 <span>| 22,560人</span></div>
+                    <div class="r-pill-title"><i class="fa-solid fa-circle-dot text-cyan"></i> 0–5 km 核心圈</div>
+                    <div class="r-pill-val">6 所 <span>| 22,560人</span></div>
                   </div>
                   <div class="r-pill r-pill-10km" onclick="filterDistance('5-10km')">
-                    <div class="r-pill-title"><i class="fa-solid fa-bullseye text-purple"></i> 5–10 km 擴散圈</div>
-                    <div class="r-pill-val">11 所學校 <span>| 72,200人</span></div>
+                    <div class="r-pill-title"><i class="fa-solid fa-bullseye text-purple"></i> 5–10 km 近郊擴散圈</div>
+                    <div class="r-pill-val">11 所 <span>| 72,200人</span></div>
                   </div>
-                  <div class="r-pill r-pill-total" onclick="filterDistance('within10km')">
-                    <div class="r-pill-title"><i class="fa-solid fa-layer-group text-indigo"></i> 10 km 環狀總涵蓋</div>
-                    <div class="r-pill-val">17 所學校 <span>| 94,760人</span></div>
+                  <div class="r-pill r-pill-50km" onclick="filterDistance('10-50km')">
+                    <div class="r-pill-title"><i class="fa-solid fa-city text-amber"></i> 10–50 km 中距離生活圈</div>
+                    <div class="r-pill-val">48 所 <span>| 182,030人</span></div>
+                  </div>
+                  <div class="r-pill r-pill-100km" onclick="filterDistance('50-100km')">
+                    <div class="r-pill-title"><i class="fa-solid fa-route text-emerald"></i> 50–100 km 遠距離跨區圈</div>
+                    <div class="r-pill-val">26 所 <span>| 37,500人</span></div>
                   </div>
                 </div>
                 <div class="radius-toggles-row">
                   <label class="toggle-checkbox">
                     <input type="checkbox" id="chkCircle5km" checked onchange="toggleCircleLayer('5km', this.checked)">
-                    <span><i class="fa-solid fa-circle text-cyan"></i> 5 km 核心圖層 (半徑 5,000m)</span>
+                    <span><i class="fa-solid fa-circle text-cyan"></i> 5 km 核心圈 (半徑 5,000m)</span>
                   </label>
                   <label class="toggle-checkbox">
                     <input type="checkbox" id="chkCircle10km" checked onchange="toggleCircleLayer('10km', this.checked)">
-                    <span><i class="fa-solid fa-circle text-purple"></i> 10 km 擴散圖層 (半徑 10,000m)</span>
+                    <span><i class="fa-solid fa-circle text-purple"></i> 10 km 近郊圈 (半徑 10,000m)</span>
+                  </label>
+                  <label class="toggle-checkbox">
+                    <input type="checkbox" id="chkCircle50km" checked onchange="toggleCircleLayer('50km', this.checked)">
+                    <span><i class="fa-solid fa-circle text-amber"></i> 50 km 生活圈 (半徑 50,000m)</span>
+                  </label>
+                  <label class="toggle-checkbox">
+                    <input type="checkbox" id="chkCircle100km" checked onchange="toggleCircleLayer('100km', this.checked)">
+                    <span><i class="fa-solid fa-circle text-emerald"></i> 100 km 跨區圈 (半徑 100,000m)</span>
                   </label>
                   <label class="toggle-checkbox">
                     <input type="checkbox" id="chkDistanceLines" checked onchange="toggleDistanceLines(this.checked)">
-                    <span><i class="fa-solid fa-route text-amber"></i> 選取學校與輔英直線連結線</span>
+                    <span><i class="fa-solid fa-route text-cyan"></i> 選取學校與輔英直線連線導引</span>
                   </label>
                 </div>
                 <div class="radius-actions">
-                  <button class="radius-act-btn" onclick="focusFooyinRadiusBounds()"><i class="fa-solid fa-crosshairs"></i> 聚焦輔英環狀視角</button>
-                  <button class="radius-act-btn secondary" onclick="filterDistance('all')"><i class="fa-solid fa-arrows-rotate"></i> 顯示全區視角</button>
+                  <button class="radius-act-btn" onclick="focusFooyinRadiusBounds(10)"><i class="fa-solid fa-crosshairs"></i> 10km視角</button>
+                  <button class="radius-act-btn" onclick="focusFooyinRadiusBounds(50)"><i class="fa-solid fa-globe"></i> 50km視角</button>
+                  <button class="radius-act-btn secondary" onclick="filterDistance('all')"><i class="fa-solid fa-arrows-rotate"></i> 重置全區</button>
                 </div>
               </div>
             </div>

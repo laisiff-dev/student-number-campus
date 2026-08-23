@@ -26,8 +26,12 @@ let isDarkTile = true;
 // GIS Buffer Rings & Beacon Layers
 let circle5kmLayer = null;
 let circle10kmLayer = null;
+let circle50kmLayer = null;
+let circle100kmLayer = null;
 let tooltip5kmMarker = null;
 let tooltip10kmMarker = null;
+let tooltip50kmMarker = null;
+let tooltip100kmMarker = null;
 let fooyinBeaconMarker = null;
 let distancePolylineLayer = null;
 let showDistanceLines = true;
@@ -149,11 +153,11 @@ function initGISMap() {
   setTimeout(() => focusFooyinRadiusBounds(), 200);
 }
 
-// Initialize Concentric Rings (5km / 10km) & Fooyin Beacon Marker
+// Initialize 4-Tier Concentric Buffer Rings (5km / 10km / 50km / 100km) & Fooyin Beacon Marker
 function initFooyinRadiusLayers() {
   if (!map) return;
 
-  // 5 km Core Ring (Cyan / Emerald)
+  // 1) 5 km Core Ring (Cyan)
   circle5kmLayer = L.circle([FOOYIN_CENTER.lat, FOOYIN_CENTER.lng], {
     radius: 5000,
     color: '#06b6d4',
@@ -163,7 +167,7 @@ function initFooyinRadiusLayers() {
     dashArray: '6, 6'
   }).addTo(map);
 
-  // 10 km Expansion Ring (Violet / Purple)
+  // 2) 10 km Suburban Ring (Violet)
   circle10kmLayer = L.circle([FOOYIN_CENTER.lat, FOOYIN_CENTER.lng], {
     radius: 10000,
     color: '#8b5cf6',
@@ -173,15 +177,36 @@ function initFooyinRadiusLayers() {
     dashArray: '8, 8'
   }).addTo(map);
 
+  // 3) 50 km Regional Living Ring (Amber)
+  circle50kmLayer = L.circle([FOOYIN_CENTER.lat, FOOYIN_CENTER.lng], {
+    radius: 50000,
+    color: '#f59e0b',
+    fillColor: '#f59e0b',
+    fillOpacity: 0.04,
+    weight: 2.0,
+    dashArray: '10, 10'
+  }).addTo(map);
+
+  // 4) 100 km Cross-County Ring (Emerald)
+  circle100kmLayer = L.circle([FOOYIN_CENTER.lat, FOOYIN_CENTER.lng], {
+    radius: 100000,
+    color: '#10b981',
+    fillColor: '#10b981',
+    fillOpacity: 0.02,
+    weight: 2.0,
+    dashArray: '12, 12'
+  }).addTo(map);
+
   // North Latitude Points for Ring Tooltips
   const p5kmNorth = [FOOYIN_CENTER.lat + (5 / 111.32), FOOYIN_CENTER.lng];
   const p10kmNorth = [FOOYIN_CENTER.lat + (10 / 111.32), FOOYIN_CENTER.lng];
+  const p50kmNorth = [FOOYIN_CENTER.lat + (50 / 111.32), FOOYIN_CENTER.lng];
+  const p100kmNorth = [FOOYIN_CENTER.lat + (100 / 111.32), FOOYIN_CENTER.lng];
 
   tooltip5kmMarker = L.marker(p5kmNorth, {
     icon: L.divIcon({ className: 'hidden-icon', iconSize: [0, 0] })
   }).addTo(map);
-
-  tooltip5kmMarker.bindTooltip('🎯 5 km 核心圈 (6所學校 | 2.25萬學生)', {
+  tooltip5kmMarker.bindTooltip('🎯 5 km 核心圈 (6所 | 2.25萬學生)', {
     permanent: true,
     direction: 'top',
     className: 'radius-tooltip tooltip-5km'
@@ -190,11 +215,28 @@ function initFooyinRadiusLayers() {
   tooltip10kmMarker = L.marker(p10kmNorth, {
     icon: L.divIcon({ className: 'hidden-icon', iconSize: [0, 0] })
   }).addTo(map);
-
-  tooltip10kmMarker.bindTooltip('⭕ 10 km 擴散圈 (17所學校 | 9.47萬學生)', {
+  tooltip10kmMarker.bindTooltip('⭕ 10 km 近郊圈 (17所 | 9.48萬學生)', {
     permanent: true,
     direction: 'top',
     className: 'radius-tooltip tooltip-10km'
+  });
+
+  tooltip50kmMarker = L.marker(p50kmNorth, {
+    icon: L.divIcon({ className: 'hidden-icon', iconSize: [0, 0] })
+  }).addTo(map);
+  tooltip50kmMarker.bindTooltip('🏙️ 50 km 生活圈 (65所 | 27.68萬學生)', {
+    permanent: true,
+    direction: 'top',
+    className: 'radius-tooltip tooltip-50km'
+  });
+
+  tooltip100kmMarker = L.marker(p100kmNorth, {
+    icon: L.divIcon({ className: 'hidden-icon', iconSize: [0, 0] })
+  }).addTo(map);
+  tooltip100kmMarker.bindTooltip('📡 100 km 跨區圈 (91所 | 31.43萬學生)', {
+    permanent: true,
+    direction: 'top',
+    className: 'radius-tooltip tooltip-100km'
   });
 
   // Center Fooyin Beacon Pulsing Marker
@@ -365,6 +407,10 @@ function getFilteredSchools() {
       if (school.distFromFooyin > 5) return false;
     } else if (currentDistanceFilter === '5-10km') {
       if (school.distFromFooyin <= 5 || school.distFromFooyin > 10) return false;
+    } else if (currentDistanceFilter === '10-50km') {
+      if (school.distFromFooyin <= 10 || school.distFromFooyin > 50) return false;
+    } else if (currentDistanceFilter === '50-100km') {
+      if (school.distFromFooyin <= 50 || school.distFromFooyin > 100) return false;
     } else if (currentDistanceFilter === 'within10km') {
       if (school.distFromFooyin > 10) return false;
     }
@@ -435,7 +481,11 @@ function renderSchoolList() {
     } else if (school.distFromFooyin <= 5) {
       distBadgeHtml = `<span class="dist-pill dist-5km" title="5km核心圈"><i class="fa-solid fa-circle-dot"></i> 距輔英 ${school.distFromFooyin.toFixed(2)} km</span>`;
     } else if (school.distFromFooyin <= 10) {
-      distBadgeHtml = `<span class="dist-pill dist-10km" title="5-10km擴散圈"><i class="fa-solid fa-bullseye"></i> 距輔英 ${school.distFromFooyin.toFixed(2)} km</span>`;
+      distBadgeHtml = `<span class="dist-pill dist-10km" title="5-10km近郊圈"><i class="fa-solid fa-bullseye"></i> 距輔英 ${school.distFromFooyin.toFixed(2)} km</span>`;
+    } else if (school.distFromFooyin <= 50) {
+      distBadgeHtml = `<span class="dist-pill dist-50km" title="10-50km生活圈"><i class="fa-solid fa-city"></i> 距輔英 ${school.distFromFooyin.toFixed(1)} km</span>`;
+    } else if (school.distFromFooyin <= 100) {
+      distBadgeHtml = `<span class="dist-pill dist-100km" title="50-100km遠距圈"><i class="fa-solid fa-route"></i> 距輔英 ${school.distFromFooyin.toFixed(1)} km</span>`;
     } else {
       distBadgeHtml = `<span class="dist-pill dist-outer"><i class="fa-solid fa-compass"></i> 距輔英 ${school.distFromFooyin.toFixed(1)} km</span>`;
     }
@@ -570,34 +620,47 @@ function renderInspectorPanel(school) {
 
   let distCategoryLabel = '';
   let distGaugeClass = '';
-  let distPct = Math.min(100, Math.round((distFromFy / 20) * 100));
+  let distBadgeClass = '';
+  let distPct = Math.min(100, Math.round((distFromFy / 100) * 100));
 
   if (school.id === 'u7') {
     distCategoryLabel = '🎯 GIS 原點中心點';
     distGaugeClass = 'fill-5km';
+    distBadgeClass = 'dist-center';
   } else if (distFromFy <= 5) {
     distCategoryLabel = '🎯 5 km 核心圈';
     distGaugeClass = 'fill-5km';
+    distBadgeClass = 'dist-5km';
   } else if (distFromFy <= 10) {
-    distCategoryLabel = '⭕ 5–10 km 擴散圈';
+    distCategoryLabel = '⭕ 5–10 km 近郊擴散圈';
     distGaugeClass = 'fill-10km';
+    distBadgeClass = 'dist-10km';
+  } else if (distFromFy <= 50) {
+    distCategoryLabel = '🏙️ 10–50 km 中距離生活圈';
+    distGaugeClass = 'fill-50km';
+    distBadgeClass = 'dist-50km';
+  } else if (distFromFy <= 100) {
+    distCategoryLabel = '📡 50–100 km 遠距離跨區圈';
+    distGaugeClass = 'fill-100km';
+    distBadgeClass = 'dist-100km';
   } else {
-    distCategoryLabel = '📡 10 km 以外遠距';
+    distCategoryLabel = '🏔️ 100 km 以外特遠偏鄉';
     distGaugeClass = 'fill-outer';
+    distBadgeClass = 'dist-outer';
   }
 
   const inspectorDistanceHtml = `
     <div class="inspector-distance-card">
       <div class="dist-card-header">
         <span class="dist-card-title"><i class="fa-solid fa-compass text-cyan"></i> 輔英科技大學 GIS 空間距離分析</span>
-        <span class="dist-pill ${school.id === 'u7' ? 'dist-center' : distFromFy <= 5 ? 'dist-5km' : distFromFy <= 10 ? 'dist-10km' : 'dist-outer'}">${distCategoryLabel}</span>
+        <span class="dist-pill ${distBadgeClass}">${distCategoryLabel}</span>
       </div>
       <div class="dist-metric-row">
         <span style="font-size: 0.8rem; color: var(--text-muted);">${school.id === 'u7' ? '為半徑圈原點中心：' : '與輔英直線距離：'}</span>
         <span class="dist-num-display">${school.id === 'u7' ? '0.00 km' : distFromFy.toFixed(2) + ' km'}</span>
       </div>
-      <div class="dist-gauge-container" title="距離原點 20km 標尺占比">
-        <div class="dist-gauge-fill ${distGaugeClass}" style="width: ${school.id === 'u7' ? '100' : distPct}%;"></div>
+      <div class="dist-gauge-container" title="距離原點 100km 全域標尺占比">
+        <div class="dist-gauge-fill ${distGaugeClass}" style="width: ${school.id === 'u7' ? '100' : Math.max(5, distPct)}%;"></div>
       </div>
       ${school.id !== 'u7' ? `
         <button class="dist-draw-line-btn" onclick="drawDistancePolyline(selectedSchool); focusFooyinRadiusBounds();">
@@ -1330,8 +1393,10 @@ function drawDistancePolyline(school) {
   const ringTag = school.distFromFooyin <= 5 
     ? '5km 核心圈' 
     : school.distFromFooyin <= 10 
-    ? '5-10km 擴散圈' 
-    : '10km 外遠距';
+    ? '5-10km 近郊圈' 
+    : school.distFromFooyin <= 50 
+    ? '10-50km 生活圈' 
+    : '50-100km 遠距圈';
 
   distancePolylineLayer = L.polyline(latlngs, {
     color: '#38bdf8',
@@ -1368,11 +1433,17 @@ function filterDistance(distType, btnElement) {
     showToast('🎯 已切換篩選：輔英半徑 5 km 核心圈 (6 所學校 | 2.25萬學生)');
     focusFooyinRadiusBounds(12.5);
   } else if (distType === '5-10km') {
-    showToast('⭕ 已切換篩選：輔英半徑 5–10 km 擴散圈 (11 所學校 | 7.22萬學生)');
-    focusFooyinRadiusBounds();
+    showToast('⭕ 已切換篩選：輔英半徑 5–10 km 近郊擴散圈 (11 所學校 | 7.22萬學生)');
+    focusFooyinRadiusBounds(11);
+  } else if (distType === '10-50km') {
+    showToast('🏙️ 已切換篩選：輔英半徑 10–50 km 中距離生活圈 (48 所學校 | 18.20萬學生)');
+    focusFooyinRadiusBounds(9.5);
+  } else if (distType === '50-100km') {
+    showToast('📡 已切換篩選：輔英半徑 50–100 km 遠距離跨區圈 (26 所學校 | 3.75萬學生)');
+    focusFooyinRadiusBounds(8.5);
   } else if (distType === 'within10km') {
-    showToast('📡 已切換篩選：輔英半徑 10 km 環狀總涵蓋 (17 所學校 | 9.48萬學生)');
-    focusFooyinRadiusBounds();
+    showToast('📡 已切換篩選：輔英半徑 10 km 核心涵蓋區 (17 所學校 | 9.48萬學生)');
+    focusFooyinRadiusBounds(11);
   } else {
     showToast('🌐 已重置距離篩選，顯示全區 91 所學校');
   }
@@ -1380,12 +1451,9 @@ function filterDistance(distType, btnElement) {
 
 function toggleRadiusAnalysisMode() {
   switchMainView('map');
-  currentDistanceFilter = 'within10km';
+  currentDistanceFilter = 'all';
   
-  // Highlight distance button
   document.querySelectorAll('.filter-btn[data-dist]').forEach(btn => btn.classList.remove('active'));
-  const btn10 = document.querySelector('.filter-btn[data-dist="within10km"]');
-  if (btn10) btn10.classList.add('active');
 
   // Select Fooyin
   const fy = SCHOOLS_DATA.find(s => s.id === 'u7');
@@ -1396,20 +1464,26 @@ function toggleRadiusAnalysisMode() {
   renderSchoolList();
   if (fy) renderInspectorPanel(fy);
 
-  // Ensure circles visible
+  // Ensure all 4 circles visible
   toggleCircleLayer('5km', true);
   toggleCircleLayer('10km', true);
+  toggleCircleLayer('50km', true);
+  toggleCircleLayer('100km', true);
   
   const chk5 = document.getElementById('chkCircle5km');
   const chk10 = document.getElementById('chkCircle10km');
+  const chk50 = document.getElementById('chkCircle50km');
+  const chk100 = document.getElementById('chkCircle100km');
   if (chk5) chk5.checked = true;
   if (chk10) chk10.checked = true;
+  if (chk50) chk50.checked = true;
+  if (chk100) chk100.checked = true;
 
   setTimeout(() => {
-    focusFooyinRadiusBounds();
+    focusFooyinRadiusBounds(10);
   }, 100);
 
-  showToast('🎯 已開啟【輔英科技大學】半徑 5km / 10km GIS 同心圓動態擴散地圖！');
+  showToast('🎯 已開啟【輔英科技大學】全半徑 (5/10/50/100km) 4重 GIS 同心圓擴散地圖！');
 }
 
 function focusFooyinRadiusBounds(customZoom = null) {
@@ -1441,6 +1515,22 @@ function toggleCircleLayer(ringType, visible) {
       if (circle10kmLayer && map.hasLayer(circle10kmLayer)) map.removeLayer(circle10kmLayer);
       if (tooltip10kmMarker && map.hasLayer(tooltip10kmMarker)) map.removeLayer(tooltip10kmMarker);
     }
+  } else if (ringType === '50km') {
+    if (visible) {
+      if (circle50kmLayer && !map.hasLayer(circle50kmLayer)) map.addLayer(circle50kmLayer);
+      if (tooltip50kmMarker && !map.hasLayer(tooltip50kmMarker)) map.addLayer(tooltip50kmMarker);
+    } else {
+      if (circle50kmLayer && map.hasLayer(circle50kmLayer)) map.removeLayer(circle50kmLayer);
+      if (tooltip50kmMarker && map.hasLayer(tooltip50kmMarker)) map.removeLayer(tooltip50kmMarker);
+    }
+  } else if (ringType === '100km') {
+    if (visible) {
+      if (circle100kmLayer && !map.hasLayer(circle100kmLayer)) map.addLayer(circle100kmLayer);
+      if (tooltip100kmMarker && !map.hasLayer(tooltip100kmMarker)) map.addLayer(tooltip100kmMarker);
+    } else {
+      if (circle100kmLayer && map.hasLayer(circle100kmLayer)) map.removeLayer(circle100kmLayer);
+      if (tooltip100kmMarker && map.hasLayer(tooltip100kmMarker)) map.removeLayer(tooltip100kmMarker);
+    }
   }
 }
 
@@ -1467,4 +1557,5 @@ function toggleRadiusCardMinimize() {
     if (icon) icon.className = 'fa-solid fa-chevron-down';
   }
 }
+
 
