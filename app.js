@@ -74,6 +74,7 @@ SCHOOLS_DATA.forEach(school => {
 // Initialize App on DOM Load
 document.addEventListener('DOMContentLoaded', () => {
   initGISMap();
+  updateHeaderAndFilterMetrics();
   renderSchoolList();
   
   // First action: check connection health for all schools
@@ -88,6 +89,72 @@ document.addEventListener('DOMContentLoaded', () => {
   // Pre-render analytics charts
   initAnalyticsCharts();
 });
+
+// Dynamic UI Header & Filter Metrics Synchronizer
+function updateHeaderAndFilterMetrics() {
+  const totalSchools = SCHOOLS_DATA.length;
+  const totalStudents = SCHOOLS_DATA.reduce((sum, s) => sum + s.total, 0);
+  const highStudents = SCHOOLS_DATA.filter(s => s.category === 'high').reduce((sum, s) => sum + s.total, 0);
+
+  const schoolCountEl = document.getElementById('statSchoolCount');
+  if (schoolCountEl) schoolCountEl.textContent = `${totalSchools.toLocaleString()} 所`;
+
+  const totalStudentsEl = document.getElementById('statTotalStudents');
+  if (totalStudentsEl) totalStudentsEl.textContent = `${totalStudents.toLocaleString()} 人`;
+
+  const highStudentsEl = document.getElementById('statHighSchoolStudents');
+  if (highStudentsEl) highStudentsEl.textContent = `${highStudents.toLocaleString()} 人`;
+
+  const uniCount = SCHOOLS_DATA.filter(s => s.category === 'university').length;
+  const highCount = SCHOOLS_DATA.filter(s => s.category === 'high').length;
+  const junCount = SCHOOLS_DATA.filter(s => s.category === 'junior').length;
+  const ruralCount = SCHOOLS_DATA.filter(s => s.isRural).length;
+
+  const btnAll = document.querySelector('.filter-btn[data-category="all"]');
+  if (btnAll) btnAll.innerHTML = `<i class="fa-solid fa-layer-group"></i> 全部分類 (${totalSchools})`;
+
+  const btnUni = document.querySelector('.filter-btn[data-category="university"]');
+  if (btnUni) btnUni.innerHTML = `<span class="dot dot-purple"></span> 大專院校 (${uniCount})`;
+
+  const btnHigh = document.querySelector('.filter-btn[data-category="high"]');
+  if (btnHigh) btnHigh.innerHTML = `<span class="dot dot-green"></span> 高級中等學校 (${highCount})`;
+
+  const btnJun = document.querySelector('.filter-btn[data-category="junior"]');
+  if (btnJun) btnJun.innerHTML = `<span class="dot dot-amber"></span> 國民中學 (${junCount})`;
+
+  const btnRural = document.querySelector('.filter-btn[data-category="rural"]');
+  if (btnRural) btnRural.innerHTML = `<i class="fa-solid fa-tree text-emerald"></i> 偏鄉/山區/離島 (${ruralCount})`;
+
+  // City dropdown updates
+  const tainanCount = SCHOOLS_DATA.filter(s => s.city === '臺南市' || s.city === '台南市').length;
+  const kaohsiungCount = SCHOOLS_DATA.filter(s => s.city === '高雄市').length;
+  const pingtungCount = SCHOOLS_DATA.filter(s => s.city === '屏東縣').length;
+
+  const citySelect = document.getElementById('citySelect');
+  if (citySelect && citySelect.options.length >= 4) {
+    citySelect.options[0].text = `🌐 全部區域 (台南/高雄/屏東)`;
+    citySelect.options[1].text = `🏛️ 台南市 (${tainanCount}所)`;
+    citySelect.options[2].text = `🏙️ 高雄市 (${kaohsiungCount}所)`;
+    citySelect.options[3].text = `🌴 屏東縣 (${pingtungCount}所)`;
+  }
+
+  // Distance dropdown updates
+  const r5 = SCHOOLS_DATA.filter(s => s.distFromFooyin <= 5);
+  const r5_10 = SCHOOLS_DATA.filter(s => s.distFromFooyin > 5 && s.distFromFooyin <= 10);
+  const r10_50 = SCHOOLS_DATA.filter(s => s.distFromFooyin > 10 && s.distFromFooyin <= 50);
+  const r50_100 = SCHOOLS_DATA.filter(s => s.distFromFooyin > 50 && s.distFromFooyin <= 100);
+  const r_within10 = SCHOOLS_DATA.filter(s => s.distFromFooyin <= 10);
+
+  const distSelect = document.getElementById('distanceSelect');
+  if (distSelect && distSelect.options.length >= 6) {
+    distSelect.options[0].text = `🎯 輔英 GIS 全半徑 (${totalSchools}所全涵蓋)`;
+    distSelect.options[1].text = `🎯 0–5 km 核心圈 (${r5.length}所 | ${(r5.reduce((a,b)=>a+b.total,0)/10000).toFixed(2)}萬人)`;
+    distSelect.options[2].text = `⭕ 5–10 km 近郊擴散圈 (${r5_10.length}所 | ${(r5_10.reduce((a,b)=>a+b.total,0)/10000).toFixed(2)}萬人)`;
+    distSelect.options[3].text = `🏙️ 10–50 km 中距離生活圈 (${r10_50.length}所 | ${(r10_50.reduce((a,b)=>a+b.total,0)/10000).toFixed(2)}萬人)`;
+    distSelect.options[4].text = `📡 50–100 km 遠距離跨區圈 (${r50_100.length}所 | ${(r50_100.reduce((a,b)=>a+b.total,0)/10000).toFixed(2)}萬人)`;
+    distSelect.options[5].text = `📡 10 km 以內核心區 (${r_within10.length}所 | ${(r_within10.reduce((a,b)=>a+b.total,0)/10000).toFixed(2)}萬人)`;
+  }
+}
 
 /* ==========================================================================
    1. GIS Map Initialization & Marker Management
