@@ -1,0 +1,1094 @@
+{
+  "ssot_metadata": {
+    "schema_version": "2.4.0-L2-SSOT",
+    "governance_standard": "輔英科技大學「AI 與數位治理策略工作小組」三階驗收規範（參照《2026-11-12 成果表》）",
+    "reference_doc_url": "https://docs.google.com/document/d/1KxV-IHf4wMGbX4VKlYoq4Iu_PN8qOxHghqyz3dbWZF8/edit",
+    "generated_at": "2026-11-16T09:30:00+08:00",
+    "target_milestone": "115 年 12 月 7 日（2026-12-07）全校生源與招生 IR 策略座談會展示",
+    "source_repositories": [
+      {
+        "repo_name": "STUDENT-ENROLLED-2-ND",
+        "url": "https://github.com/laisiff-dev/STUDENT-ENROLLED-2-ND",
+        "role": "111-115 四技甄選/申請漏斗、113-115 全學制10月定錨、五大核心業務視覺化與116預測對策系統"
+      },
+      {
+        "repo_name": "student-number-campus",
+        "url": "https://github.com/laisiff-dev/student-number-campus",
+        "role": "中南部及離島 8 縣市國高中職生源母體庫 (114_base2 439校部) × 10月/2月雙週期自動同步引擎"
+      }
+    ],
+    "privacy_and_deidentification": {
+      "security_level": "L2_DEIDENTIFIED_AGGREGATE",
+      "pii_removed": true,
+      "removed_fields": [
+        "student_id (學號)",
+        "national_id (身分證字號)",
+        "student_name (考生姓名)",
+        "phone_number (聯絡電話)",
+        "home_address (通訊地址)",
+        "raw_exam_seat_no (應試號碼)"
+      ],
+      "k_anonymity_threshold": "學校×系所×學年度群體聚合統計 (無自然人單筆紀錄)",
+      "raw_office_files_purged": true,
+      "gitignore_enforced": true
+    },
+    "sha256_checksum": "3c3546e06585a078fa42e9cdf589d4a889eb12fada5258574d19623cfb59ae1c"
+  },
+  "five_core_modules": {
+    "module_1_source_schools_5yr": {
+      "module_id": "M1",
+      "title": "(1) 近5年生源學校與區域變化 (111–115)",
+      "stage_mapping": {
+        "index_html": "stage2",
+        "ir_system_html": "p4"
+      },
+      "summary_metrics": {
+        "total_feeder_schools_5yr": 197,
+        "kaoping_core_share_zhenxuan_5yr": "80.3% (423/527人)",
+        "kaoping_core_share_shenqing_5yr": "69.5% (526/757人)",
+        "y115_kaoping_vs_national": {
+          "zhenxuan_kaoping": 60,
+          "zhenxuan_national": 78,
+          "shenqing_kaoping": 108,
+          "shenqing_national": 155,
+          "dual_total_kaoping": 168,
+          "dual_total_national": 233
+        }
+      },
+      "top_feeder_schools_5yr": [
+        {
+          "rank": 1,
+          "school": "高雄市私立樹德家商",
+          "county": "高雄市",
+          "type": "私立技高",
+          "zhenxuan_5yr": 88,
+          "shenqing_5yr": 1,
+          "total_5yr": 89,
+          "oct_anchor_3yr": 291,
+          "status": "一級主力命脈校"
+        },
+        {
+          "rank": 2,
+          "school": "高雄市私立中山工商",
+          "county": "高雄市",
+          "type": "私立技高/附普",
+          "zhenxuan_5yr": 75,
+          "shenqing_5yr": 12,
+          "total_5yr": 87,
+          "oct_anchor_3yr": 417,
+          "status": "全校最大生源校(母體-15%需固本)"
+        },
+        {
+          "rank": 3,
+          "school": "高雄市私立三信家商",
+          "county": "高雄市",
+          "type": "私立技高",
+          "zhenxuan_5yr": 47,
+          "shenqing_5yr": 0,
+          "total_5yr": 47,
+          "oct_anchor_3yr": 148,
+          "status": "母體逆勢擴張(+20.2%藍海校)"
+        },
+        {
+          "rank": 4,
+          "school": "高雄市立文山高中",
+          "county": "高雄市",
+          "type": "公立普高",
+          "zhenxuan_5yr": 0,
+          "shenqing_5yr": 34,
+          "total_5yr": 34,
+          "oct_anchor_3yr": 31,
+          "status": "申請入學第一大普高"
+        },
+        {
+          "rank": 5,
+          "school": "高雄市立小港高中",
+          "county": "高雄市",
+          "type": "公立普高",
+          "zhenxuan_5yr": 0,
+          "shenqing_5yr": 32,
+          "total_5yr": 32,
+          "oct_anchor_3yr": 38,
+          "status": "南高雄地緣核心普高"
+        },
+        {
+          "rank": 6,
+          "school": "高雄市立林園高中",
+          "county": "高雄市",
+          "type": "公立完全中學",
+          "zhenxuan_5yr": 1,
+          "shenqing_5yr": 28,
+          "total_5yr": 29,
+          "oct_anchor_3yr": 37,
+          "status": "高屏溪生活圈主力普高"
+        },
+        {
+          "rank": 7,
+          "school": "國立鳳山商工",
+          "county": "高雄市",
+          "type": "國立技高",
+          "zhenxuan_5yr": 26,
+          "shenqing_5yr": 1,
+          "total_5yr": 27,
+          "oct_anchor_3yr": 54,
+          "status": "國立技高榜首"
+        },
+        {
+          "rank": 8,
+          "school": "國立屏東高工",
+          "county": "屏東縣",
+          "type": "國立技高",
+          "zhenxuan_5yr": 15,
+          "shenqing_5yr": 0,
+          "total_5yr": 15,
+          "oct_anchor_3yr": 38,
+          "status": "母體成長(+4.5%環生主力)"
+        },
+        {
+          "rank": 9,
+          "school": "國立潮州高中",
+          "county": "屏東縣",
+          "type": "國立普高",
+          "zhenxuan_5yr": 0,
+          "shenqing_5yr": 25,
+          "total_5yr": 25,
+          "oct_anchor_3yr": 54,
+          "status": "屏東第一大普高生源"
+        },
+        {
+          "rank": 10,
+          "school": "天主教道明高中",
+          "county": "高雄市",
+          "type": "私立普高",
+          "zhenxuan_5yr": 0,
+          "shenqing_5yr": 19,
+          "total_5yr": 19,
+          "oct_anchor_3yr": 25,
+          "status": "高報名低轉換重點搶救校"
+        }
+      ]
+    },
+    "module_2_oct_anchor_all_programs": {
+      "module_id": "M2",
+      "title": "(2) 全學制10月學籍定錨 × 8縣市國高中職母體 (114_base2)",
+      "stage_mapping": {
+        "index_html": "stage6",
+        "ir_system_html": "p11"
+      },
+      "oct_anchor_totals": {
+        "y113": 2478,
+        "y114": 2216,
+        "y115": 1908,
+        "three_year_cumulative": 6602,
+        "summer_melt_zhenxuan_115": "1.3% (6月報到78人 ➔ 10月在學77人，留存率 98.7%)",
+        "summer_melt_shenqing_115": "12.9% (6月報到155人 ➔ 10月在學135人，留存率 87.1%)",
+        "union_distribution_rebound_115": "+51.6% (114年64人 ➔ 115年97人)"
+      },
+      "programs_113_115": [
+        {
+          "program": "日二技",
+          "y113": 706,
+          "y114": 681,
+          "y115": 545,
+          "yoy_114_115": "-20.0%"
+        },
+        {
+          "program": "日四技",
+          "y113": 727,
+          "y114": 608,
+          "y115": 532,
+          "yoy_114_115": "-12.5%"
+        },
+        {
+          "program": "日五專",
+          "y113": 519,
+          "y114": 440,
+          "y115": 463,
+          "yoy_114_115": "+5.2%"
+        },
+        {
+          "program": "進二技",
+          "y113": 244,
+          "y114": 254,
+          "y115": 159,
+          "yoy_114_115": "-37.4%"
+        },
+        {
+          "program": "日碩士",
+          "y113": 73,
+          "y114": 79,
+          "y115": 70,
+          "yoy_114_115": "-11.4%"
+        },
+        {
+          "program": "進四技",
+          "y113": 98,
+          "y114": 71,
+          "y115": 59,
+          "yoy_114_115": "-16.9%"
+        },
+        {
+          "program": "學士後護理",
+          "y113": 45,
+          "y114": 45,
+          "y115": 35,
+          "yoy_114_115": "-22.2%"
+        },
+        {
+          "program": "碩專班",
+          "y113": 25,
+          "y114": 13,
+          "y115": 34,
+          "yoy_114_115": "+161.5%"
+        },
+        {
+          "program": "日二專",
+          "y113": 41,
+          "y114": 25,
+          "y115": 11,
+          "yoy_114_115": "-56.0%"
+        }
+      ],
+      "moe_8_counties_base2": [
+        {
+          "county": "臺中市",
+          "hs_schools": 53,
+          "jh_schools": 53,
+          "g1_113": 25168,
+          "g1_114": 24792,
+          "g1_115_est": 24625,
+          "jh_g1_114": 8830,
+          "yoy_114": "-1.5%",
+          "tier": "中部核心拓展區"
+        },
+        {
+          "county": "高雄市",
+          "hs_schools": 55,
+          "jh_schools": 41,
+          "g1_113": 20962,
+          "g1_114": 19752,
+          "g1_115_est": 19618,
+          "jh_g1_114": 4560,
+          "yoy_114": "-5.8%",
+          "tier": "一級地主核心命脈區"
+        },
+        {
+          "county": "臺南市",
+          "hs_schools": 48,
+          "jh_schools": 34,
+          "g1_113": 13680,
+          "g1_114": 12743,
+          "g1_115_est": 12654,
+          "jh_g1_114": 4016,
+          "yoy_114": "-6.8%",
+          "tier": "二級主力都會生源區"
+        },
+        {
+          "county": "嘉義市",
+          "hs_schools": 12,
+          "jh_schools": 11,
+          "g1_113": 4344,
+          "g1_114": 4321,
+          "g1_115_est": 4289,
+          "jh_g1_114": 628,
+          "yoy_114": "-0.5%",
+          "tier": "醫護與專業群科穩定區"
+        },
+        {
+          "county": "雲林縣",
+          "hs_schools": 22,
+          "jh_schools": 20,
+          "g1_113": 4323,
+          "g1_114": 4019,
+          "g1_115_est": 3989,
+          "jh_g1_114": 1487,
+          "yoy_114": "-7.0%",
+          "tier": "技職群科結盟潛力區"
+        },
+        {
+          "county": "屏東縣",
+          "hs_schools": 19,
+          "jh_schools": 19,
+          "g1_113": 4060,
+          "g1_114": 4012,
+          "g1_115_est": 3984,
+          "jh_g1_114": 1296,
+          "yoy_114": "-1.2%",
+          "tier": "一級地緣高滲透區"
+        },
+        {
+          "county": "嘉義縣",
+          "hs_schools": 9,
+          "jh_schools": 12,
+          "g1_113": 1660,
+          "g1_114": 1541,
+          "g1_115_est": 1530,
+          "jh_g1_114": 833,
+          "yoy_114": "-7.2%",
+          "tier": "公費與助學專案重點區"
+        },
+        {
+          "county": "臺東縣",
+          "hs_schools": 11,
+          "jh_schools": 10,
+          "g1_113": 1363,
+          "g1_114": 1316,
+          "g1_115_est": 1307,
+          "jh_g1_114": 151,
+          "yoy_114": "-3.4%",
+          "tier": "東部原民與醫護專班區"
+        },
+        {
+          "county": "澎湖縣",
+          "hs_schools": 2,
+          "jh_schools": 8,
+          "g1_113": 477,
+          "g1_114": 496,
+          "g1_115_est": 492,
+          "jh_g1_114": 0,
+          "yoy_114": "+4.0%",
+          "tier": "離島保送與甄選重點區"
+        }
+      ]
+    },
+    "module_3_dual_channel_funnel": {
+      "module_id": "M3",
+      "title": "(3) 四技甄選及申請入學之個別化分析 ＆ 主畫面 113–115 各院系人數變化",
+      "stage_mapping": {
+        "index_html": "stage1",
+        "ir_system_html": "p0"
+      },
+      "zhenxuan_funnel_111_115": [
+        {
+          "year": "111",
+          "p1_pass_cnt": 793,
+          "p1_pass_people": 725,
+          "p2_apply_cnt": 422,
+          "p2_apply_people": 422,
+          "admitted": 171,
+          "enrolled": 161,
+          "p1_to_p2_rate": "58.2%",
+          "admitted_to_enrolled_rate": "94.2%",
+          "p2_to_enrolled_rate": "38.2%",
+          "p1_to_enrolled_rate": "20.3%"
+        },
+        {
+          "year": "112",
+          "p1_pass_cnt": 531,
+          "p1_pass_people": 482,
+          "p2_apply_cnt": 230,
+          "p2_apply_people": 230,
+          "admitted": 100,
+          "enrolled": 93,
+          "p1_to_p2_rate": "47.7%",
+          "admitted_to_enrolled_rate": "93.0%",
+          "p2_to_enrolled_rate": "40.4%",
+          "p1_to_enrolled_rate": "17.5%"
+        },
+        {
+          "year": "113",
+          "p1_pass_cnt": 556,
+          "p1_pass_people": 461,
+          "p2_apply_cnt": 247,
+          "p2_apply_people": 247,
+          "admitted": 114,
+          "enrolled": 109,
+          "p1_to_p2_rate": "53.6%",
+          "admitted_to_enrolled_rate": "95.6%",
+          "p2_to_enrolled_rate": "44.1%",
+          "p1_to_enrolled_rate": "19.6%"
+        },
+        {
+          "year": "114",
+          "p1_pass_cnt": 399,
+          "p1_pass_people": 360,
+          "p2_apply_cnt": 162,
+          "p2_apply_people": 162,
+          "admitted": 152,
+          "enrolled": 86,
+          "p1_to_p2_rate": "45.0%",
+          "admitted_to_enrolled_rate": "56.6%",
+          "p2_to_enrolled_rate": "53.1%",
+          "p1_to_enrolled_rate": "21.6%"
+        },
+        {
+          "year": "115",
+          "p1_pass_cnt": 353,
+          "p1_pass_people": 353,
+          "p2_apply_cnt": 162,
+          "p2_apply_people": 162,
+          "admitted": 148,
+          "enrolled": 78,
+          "p1_to_p2_rate": "45.9%",
+          "admitted_to_enrolled_rate": "52.7%",
+          "p2_to_enrolled_rate": "48.1%",
+          "p1_to_enrolled_rate": "22.1%"
+        }
+      ],
+      "shenqing_funnel_111_115": [
+        {
+          "year": "111",
+          "p1_pass_cnt": 1349,
+          "p1_pass_people": 1228,
+          "p2_apply_cnt": 656,
+          "p2_apply_people": 606,
+          "confirmed": 632,
+          "joint_enrolled": null,
+          "final_enrolled": 193,
+          "p2_to_enrolled_rate": "31.8%",
+          "p1_to_p2_rate_people": "49.3%",
+          "p1_to_p2_rate_cnt": "48.6%",
+          "p2_to_enrolled_rate_cnt": "29.4%",
+          "admitted": 632,
+          "admitted_to_enrolled_rate": "30.5%"
+        },
+        {
+          "year": "112",
+          "p1_pass_cnt": 1282,
+          "p1_pass_people": 1129,
+          "p2_apply_cnt": 505,
+          "p2_apply_people": 463,
+          "confirmed": 481,
+          "joint_enrolled": 148,
+          "final_enrolled": 148,
+          "p2_to_enrolled_rate": "32.0%",
+          "p1_to_p2_rate_people": "41.0%",
+          "p1_to_p2_rate_cnt": "39.4%",
+          "p2_to_enrolled_rate_cnt": "29.3%",
+          "admitted": 481,
+          "admitted_to_enrolled_rate": "30.8%"
+        },
+        {
+          "year": "113",
+          "p1_pass_cnt": 1085,
+          "p1_pass_people": 960,
+          "p2_apply_cnt": 382,
+          "p2_apply_people": 352,
+          "confirmed": 358,
+          "joint_enrolled": 126,
+          "final_enrolled": 126,
+          "p2_to_enrolled_rate": "35.8%",
+          "p1_to_p2_rate_people": "36.7%",
+          "p1_to_p2_rate_cnt": "35.2%",
+          "p2_to_enrolled_rate_cnt": "33.0%",
+          "admitted": 358,
+          "admitted_to_enrolled_rate": "35.2%"
+        },
+        {
+          "year": "114",
+          "p1_pass_cnt": 1083,
+          "p1_pass_people": 957,
+          "p2_apply_cnt": 395,
+          "p2_apply_people": 360,
+          "confirmed": 366,
+          "joint_enrolled": 135,
+          "final_enrolled": 135,
+          "p2_to_enrolled_rate": "37.5%",
+          "p1_to_p2_rate_people": "37.6%",
+          "p1_to_p2_rate_cnt": "36.5%",
+          "p2_to_enrolled_rate_cnt": "34.2%",
+          "admitted": 366,
+          "admitted_to_enrolled_rate": "36.9%"
+        },
+        {
+          "year": "115",
+          "p1_pass_cnt": 1061,
+          "p1_pass_people": 929,
+          "p2_apply_cnt": 401,
+          "p2_apply_people": 345,
+          "confirmed": 372,
+          "joint_enrolled": 155,
+          "final_enrolled": 155,
+          "p2_to_enrolled_rate": "44.9%",
+          "p1_to_p2_rate_people": "37.1%",
+          "p1_to_p2_rate_cnt": "37.8%",
+          "p2_to_enrolled_rate_cnt": "38.7%",
+          "admitted": 372,
+          "admitted_to_enrolled_rate": "41.7%"
+        }
+      ],
+      "colleges_113_115_headcount": [
+        {
+          "college": "護理學院",
+          "dual_113": 111,
+          "dual_114": 77,
+          "dual_115": 87,
+          "dual_yoy_114_115": "+13.0%",
+          "zhenxuan_113_115": [
+            1,
+            5,
+            5
+          ],
+          "shenqing_113_115": [
+            110,
+            72,
+            82
+          ],
+          "oct_all_prog_113_115": [
+            1164,
+            1039,
+            925
+          ]
+        },
+        {
+          "college": "醫學與健康學院",
+          "dual_113": 119,
+          "dual_114": 98,
+          "dual_115": 101,
+          "dual_yoy_114_115": "+3.1%",
+          "zhenxuan_113_115": [
+            56,
+            51,
+            47
+          ],
+          "shenqing_113_115": [
+            63,
+            47,
+            54
+          ],
+          "oct_all_prog_113_115": [
+            668,
+            618,
+            531
+          ]
+        },
+        {
+          "college": "環境與生命學院",
+          "dual_113": 23,
+          "dual_114": 13,
+          "dual_115": 13,
+          "dual_yoy_114_115": "0.0%",
+          "zhenxuan_113_115": [
+            23,
+            12,
+            10
+          ],
+          "shenqing_113_115": [
+            0,
+            1,
+            3
+          ],
+          "oct_all_prog_113_115": [
+            267,
+            236,
+            192
+          ]
+        },
+        {
+          "college": "人文與管理學院",
+          "dual_113": 43,
+          "dual_114": 33,
+          "dual_115": 32,
+          "dual_yoy_114_115": "-3.0%",
+          "zhenxuan_113_115": [
+            29,
+            18,
+            16
+          ],
+          "shenqing_113_115": [
+            14,
+            15,
+            16
+          ],
+          "oct_all_prog_113_115": [
+            379,
+            323,
+            260
+          ]
+        }
+      ],
+      "departments_113_115_headcount": [
+        {
+          "dept": "護理系",
+          "college": "護理學院",
+          "z": [
+            1,
+            5,
+            5
+          ],
+          "s": [
+            110,
+            72,
+            82
+          ],
+          "dual": [
+            111,
+            77,
+            87
+          ],
+          "oct_all": [
+            1164,
+            1039,
+            925
+          ]
+        },
+        {
+          "dept": "物理治療系",
+          "college": "醫學與健康學院",
+          "z": [
+            13,
+            16,
+            14
+          ],
+          "s": [
+            31,
+            25,
+            33
+          ],
+          "dual": [
+            44,
+            41,
+            47
+          ],
+          "oct_all": [
+            95,
+            92,
+            91
+          ]
+        },
+        {
+          "dept": "職能治療系",
+          "college": "醫學與健康學院",
+          "z": [
+            7,
+            8,
+            8
+          ],
+          "s": [
+            13,
+            12,
+            13
+          ],
+          "dual": [
+            20,
+            20,
+            21
+          ],
+          "oct_all": [
+            52,
+            49,
+            47
+          ]
+        },
+        {
+          "dept": "醫學檢驗生物技術系",
+          "college": "醫學與健康學院",
+          "z": [
+            9,
+            6,
+            4
+          ],
+          "s": [
+            13,
+            7,
+            7
+          ],
+          "dual": [
+            22,
+            13,
+            11
+          ],
+          "oct_all": [
+            215,
+            196,
+            162
+          ]
+        },
+        {
+          "dept": "保健營養系",
+          "college": "醫學與健康學院",
+          "z": [
+            17,
+            10,
+            9
+          ],
+          "s": [
+            4,
+            2,
+            1
+          ],
+          "dual": [
+            21,
+            12,
+            10
+          ],
+          "oct_all": [
+            118,
+            104,
+            86
+          ]
+        },
+        {
+          "dept": "健康美容系",
+          "college": "醫學與健康學院",
+          "z": [
+            7,
+            8,
+            9
+          ],
+          "s": [
+            1,
+            1,
+            0
+          ],
+          "dual": [
+            8,
+            9,
+            9
+          ],
+          "oct_all": [
+            106,
+            98,
+            82
+          ]
+        },
+        {
+          "dept": "高齡及長期照護事業系",
+          "college": "醫學與健康學院",
+          "z": [
+            3,
+            3,
+            3
+          ],
+          "s": [
+            1,
+            0,
+            0
+          ],
+          "dual": [
+            4,
+            3,
+            3
+          ],
+          "oct_all": [
+            82,
+            79,
+            63
+          ]
+        },
+        {
+          "dept": "職業安全衛生系",
+          "college": "環境與生命學院",
+          "z": [
+            22,
+            9,
+            5
+          ],
+          "s": [
+            0,
+            0,
+            0
+          ],
+          "dual": [
+            22,
+            9,
+            5
+          ],
+          "oct_all": [
+            108,
+            95,
+            76
+          ]
+        },
+        {
+          "dept": "生物科技系",
+          "college": "環境與生命學院",
+          "z": [
+            0,
+            3,
+            4
+          ],
+          "s": [
+            0,
+            1,
+            3
+          ],
+          "dual": [
+            0,
+            4,
+            7
+          ],
+          "oct_all": [
+            48,
+            44,
+            41
+          ]
+        },
+        {
+          "dept": "環境工程與科學系",
+          "college": "環境與生命學院",
+          "z": [
+            0,
+            0,
+            1
+          ],
+          "s": [
+            0,
+            0,
+            0
+          ],
+          "dual": [
+            0,
+            0,
+            1
+          ],
+          "oct_all": [
+            79,
+            69,
+            53
+          ]
+        },
+        {
+          "dept": "應用化學及材料科學系",
+          "college": "環境與生命學院",
+          "z": [
+            1,
+            0,
+            0
+          ],
+          "s": [
+            0,
+            0,
+            0
+          ],
+          "dual": [
+            1,
+            0,
+            0
+          ],
+          "oct_all": [
+            32,
+            28,
+            22
+          ]
+        },
+        {
+          "dept": "幼兒保育暨產業系",
+          "college": "人文與管理學院",
+          "z": [
+            14,
+            7,
+            6
+          ],
+          "s": [
+            4,
+            6,
+            4
+          ],
+          "dual": [
+            18,
+            13,
+            10
+          ],
+          "oct_all": [
+            168,
+            145,
+            114
+          ]
+        },
+        {
+          "dept": "休閒與遊憩事業管理系",
+          "college": "人文與管理學院",
+          "z": [
+            10,
+            8,
+            7
+          ],
+          "s": [
+            5,
+            5,
+            5
+          ],
+          "dual": [
+            15,
+            13,
+            12
+          ],
+          "oct_all": [
+            112,
+            96,
+            78
+          ]
+        },
+        {
+          "dept": "資訊科技與管理系",
+          "college": "人文與管理學院",
+          "z": [
+            5,
+            3,
+            3
+          ],
+          "s": [
+            5,
+            4,
+            7
+          ],
+          "dual": [
+            10,
+            7,
+            10
+          ],
+          "oct_all": [
+            99,
+            82,
+            68
+          ]
+        }
+      ]
+    },
+    "module_4_ir_prediction_scenarios": {
+      "module_id": "M4",
+      "title": "(4) 全學制IR預測推估系統 (含外部人口減少 F13、公私競爭、雲端MD學術支撐 F17)",
+      "stage_mapping": {
+        "index_html": "stage4",
+        "ir_system_html": "p2"
+      },
+      "scenarios_116": {
+        "moe_base": {
+          "label": "教育部116基準情境",
+          "alpha_demo": -0.042,
+          "gamma_comp": -0.025,
+          "delta_ir": 0.03,
+          "all_prog_116_est": 1852,
+          "dual_channel_116_est": 241
+        },
+        "demographic_cliff": {
+          "label": "少子化人口斷崖壓力測試",
+          "alpha_demo": -0.085,
+          "gamma_comp": -0.04,
+          "delta_ir": 0.015,
+          "all_prog_116_est": 1715,
+          "dual_channel_116_est": 212
+        },
+        "public_private_war": {
+          "label": "公私競校擴招與國立磁吸激戰",
+          "alpha_demo": -0.045,
+          "gamma_comp": -0.065,
+          "delta_ir": 0.02,
+          "all_prog_116_est": 1756,
+          "dual_channel_116_est": 218
+        },
+        "ir_full_countermeasure": {
+          "label": "校務IR精準對策全面啟動",
+          "alpha_demo": -0.035,
+          "gamma_comp": -0.015,
+          "delta_ir": 0.06,
+          "all_prog_116_est": 1945,
+          "dual_channel_116_est": 258
+        }
+      }
+    },
+    "module_5_college_diagnosis_strategy": {
+      "module_id": "M5",
+      "title": "(5) 各院專業系所之專業診斷及招生策略建議 (含 F16 分眾行動清單)",
+      "stage_mapping": {
+        "index_html": "stage3",
+        "ir_system_html": "p5"
+      },
+      "college_strategies": [
+        {
+          "college": "護理學院",
+          "key_diagnosis": "115年四技申請報到82人(+13.9%)強勢回升、日五專463人(+5.2%)逆勢成長；惟普高申請暑期二次流失率約11.5%。",
+          "priority_action": "啟動6–9月準大一臨床模擬體驗營與基礎生物化學銜接課程(IR-03實證可降低休退率4.93個百分點)，鞏固文山/小港/林園/潮州普高生源。"
+        },
+        {
+          "college": "醫學與健康學院",
+          "key_diagnosis": "物治系雙管道47人(+14.6%)與職治系21人表現亮眼；醫技與保營受國立科大擴招影響需強化實作體驗。",
+          "priority_action": "由物治、職治領軍攜手醫技、保營、健美、高齡辦理『復健×精準檢測×營養美學』聯合實作營，深耕樹德家商、三信家商(+20.2%)與鳳山商工。"
+        },
+        {
+          "college": "環境與生命學院",
+          "key_diagnosis": "生技系雙管道由4人增至7人(+75%)；職安系與環工系轉向8月四技聯登與產學攜手專班互補。",
+          "priority_action": "對接屏東高工(+4.5%)、中正高工(+4.4%)化工與環檢科，推動『ESG綠領環安衛證照＋企業帶薪實習』保證就業方案。"
+        },
+        {
+          "college": "人文與管理學院",
+          "key_diagnosis": "資科系申請入學逆勢成長(+42.9%)；幼保與休遊系需克服少子化刻板印象並開發公托與智慧運動健康市場。",
+          "priority_action": "主打『準公共化托育高起薪＋AI數位商務運動指導』，鎖定三信家商、樹德家商、鳳山商工家政/商管/餐旅群簽署早鳥助學金。"
+        }
+      ]
+    }
+  },
+  "l2_governance_signoff_registry": {
+    "target_event": "115 年 12 月 7 日（2026-12-07）全校生源分析與招生策略座談會",
+    "verification_standard": "AI 與數位治理策略工作小組 L2 數據簽認驗收規範（去識別化 SSOT 單一真實資料源勾稽）",
+    "signoff_units": [
+      {
+        "unit_id": "UNIT-01",
+        "unit_name": "選才辦公室（招生處 / 校務研究 IR 中心）",
+        "scope": "全校 111–115 四技甄選/申請漏斗、113–115 全學制 10 月定錨（6,602人）與 8 縣市國高中職母體（439校部）主檔勾稽",
+        "verified_metrics": "甄選5年報到527人、申請5年報到757人；115年雙管道報到233人(+5.4%)；115全學制10月在學1,908人",
+        "status": "READY_FOR_L2_SIGNOFF",
+        "signoff_deadline": "2026-12-04"
+      },
+      {
+        "unit_id": "UNIT-02",
+        "unit_name": "護理學院（含四技/五專/二技/學士後護理）",
+        "scope": "護理系 113–115 雙管道人數（111➔77➔87人，+13.0%）與全學制10月定錨（1,164➔1,039➔925人，五專463人+5.2%）",
+        "verified_metrics": "116推估報到率：甄選~42.1%、申請~41.5%；主力生源：文山/小港/林園/潮州/中山工商",
+        "status": "READY_FOR_L2_SIGNOFF",
+        "signoff_deadline": "2026-12-04"
+      },
+      {
+        "unit_id": "UNIT-03",
+        "unit_name": "醫學與健康學院（物治/職治/醫技/保營/健美/高齡 6 系）",
+        "scope": "醫健學院 113–115 雙管道人數（119➔98➔101人，+3.1%）與全學制10月定錨（668➔618➔531人）",
+        "verified_metrics": "物治雙管道41➔47人(+14.6%)、職治20➔21人(+5.0%)；三信家商(+20.2%)與樹德家商群科對接清單",
+        "status": "READY_FOR_L2_SIGNOFF",
+        "signoff_deadline": "2026-12-04"
+      },
+      {
+        "unit_id": "UNIT-04",
+        "unit_name": "環境與生命學院（職安/生技/環工/應化 4 系）",
+        "scope": "環生學院 113–115 雙管道人數（23➔13➔13人，持平）與全學制10月定錨（267➔236➔192人）",
+        "verified_metrics": "生技雙管道4➔7人(+75.0%)；屏東高工(+4.5%)、中正高工(+4.4%)與鳳山商工工業/化工類科拓展名單",
+        "status": "READY_FOR_L2_SIGNOFF",
+        "signoff_deadline": "2026-12-04"
+      },
+      {
+        "unit_id": "UNIT-05",
+        "unit_name": "人文與管理學院（幼保/休遊/資科 3 系）",
+        "scope": "人管學院 113–115 雙管道人數（43➔33➔32人）與全學制10月定錨（379➔323➔260人）",
+        "verified_metrics": "資科雙管道7➔10人(+42.9%)；家政群/商管群/餐旅群主力生源校固本與獎助策略",
+        "status": "READY_FOR_L2_SIGNOFF",
+        "signoff_deadline": "2026-12-04"
+      }
+    ]
+  },
+  "l3_onprem_integration_spec": {
+    "custodian_unit": "圖書暨資訊處（圖資處 Office of Library and Information Services）",
+    "security_tier": "L3_ON_PREMISE_INTRANET_GOVERNANCE (校內地端伺服器資安納管 / ISO 27001 & 個資法合規)",
+    "infrastructure": {
+      "hosting": "輔英科大圖資處校內虛擬化叢集 (VMware / Docker On-Premise Container)",
+      "network_zone": "校內核心資安網段 (VLAN 隔離 + WAF 防火牆 + 校園 VPN / SSO 單一簽入)",
+      "database": "PostgreSQL 16 (校內地端主從備援 + 每日異地加密快照)",
+      "auth_rbac": "整合校內 AD / LDAP 單一簽入，依角色分權（校長/院長/選才辦公室/系主任/導師）"
+    },
+    "realtime_alert_pipelines": [
+      {
+        "pipeline_id": "ALERT-OAA-01",
+        "target_system": "教務處（招生系統 ＆ 註冊與學籍管理系統）",
+        "trigger_engine": "F14 招生期間動態預警機制 (In-Flight Monitoring) ＋ Stage 6 暑期流失追蹤",
+        "trigger_condition": "二階報名/繳費期間每日進度達成比 PI(d) < 80%（亮紅燈），或 6月報到後放棄異動",
+        "push_channels": [
+          "校內 EIP 推播",
+          "系主任專屬 Microsoft Teams / Line Notify 群組",
+          "選才辦公室即時戰情信箱"
+        ],
+        "sla_response": "觸發後 24 小時內啟動種子教師關懷電訪與助學金配對"
+      },
+      {
+        "pipeline_id": "ALERT-OSA-02",
+        "target_system": "學務處（生活輔導組 ＆ 學生發展暨諮商中心 ＆ 住宿服務組）",
+        "trigger_engine": "F17 雲端 MD 實證預判引擎 (IR-02 就學穩定度 × IR-03 基礎銜接課程 × TAG-2 通勤住宿歸因)",
+        "trigger_condition": "大一新生未參與暑期基礎銜接課程（休退風險 6.58% vs 1.65%）、外縣市跨區未申請住宿、或期中預警缺曠達標",
+        "push_channels": [
+          "學務處導師關懷預警系統 API",
+          "大一班導師與職涯導師 Line/Email 即時通知",
+          "住宿組床位優先保留推播"
+        ],
+        "sla_response": "開學前 2 週完成住宿與共乘媒合；開學第 4 週前完成第一輪導師一對一晤談"
+      }
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+# ============================================================================
+# 輔英科技大學「AI 與數位治理策略工作小組」三階驗收規範 — 第一階段 (L1 公開庫資安防護)
+# 適用公開儲存庫：
+#   1. https://github.com/laisiff-dev/STUDENT-ENROLLED-2-ND
+#   2. https://github.com/laisiff-dev/student-number-campus
+# 依據：《2026-11-12 成果表》第一階段規範
+# ============================================================================
+
+# 1. 嚴禁上傳原始教務/學籍/招生名冊與 Office 文件 (.xlsx / .docx / .ods / .csv)
+*.xlsx
+*.xls
+*.xlsm
+*.xlsb
+*.ods
+*.docx
+*.doc
+*.rtf
+
+# 原始 CSV 預設阻擋（僅放行公開去識別化範本）
+*.csv
+!sample_template_*.csv
+
+# 2. 嚴禁上傳 Office 暫存鎖定檔與備份檔 (~$ 鎖定檔)
+~$*
+.~lock.*
+*.~lock*
+*.bak
+*.tmp
+*.temp
+*.swp
+*~
+
+# 3. 本地端原始檔案隔離保存庫 (Local Raw Vault)
+_local_raw_vault/
+raw_data/
+private_data/
+backup/
+
+# 4. 明確放行：第二階段 L2 去識別化單一真實資料源 (SSOT JSON) 與雲端 IR 實證 MD 知識庫
+!ssot_ir_data.json
+!dashboard_data.json
+!cloud_ir_md_repository/*.md
+
+# 5. Python / Node / IDE 環境與系統暫存檔
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.env
+.env.*
+node_modules/
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/settings.json
